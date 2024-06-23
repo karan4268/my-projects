@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.3/dist/css/uikit.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.3/dist/js/uikit.min.js"></script>
+  <title>Center Aligned Card with UIKit</title>
+  <style>
+    /*styles for the card container */
+    .custom-card {
+      margin: 20px;
+      background-color: antiquewhite;
+      color: black;
+      border-radius:32px;
+      width: 35%;
+      height: auto;
+    }
+    
+    /* Adjustments for the image */
+    .custom-card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 22px;
+    }
+    .center-image {
+      display: flex;
+      justify-content: center;
+    }
+      .center-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 90vh;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="center-container">
+    <div class="uk-card uk-card-default custom-card">
+      <div class="uk-card-media-center">
+        <img src="https://fastly.picsum.photos/id/13/2500/1667.jpg?hmac=SoX9UoHhN8HyklRA4A3vcCWJMVtiBXUg0W4ljWTor7s" alt="Placeholder image">
+      </div>
+      <div class="uk-card-body">
+        <h3 class="uk-card-title">Card Title</h3>
+        <p>/Card Subtitle/</p>
+        <p>-- subtitle can be added here --.</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
