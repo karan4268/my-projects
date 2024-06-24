@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            background-color: azure;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-gap: 50px;
+            padding: 120px;
+        }
+
+        .item {
+            overflow: hidden;
+            border-radius: 22px;
+            width: auto;
+            height: auto;
+        }
+
+        .item img {
+            width: 100%;
+            height: auto;
+            display: grid;
+        }
+    </style>
+    <title>Responsive Image Grid</title>
+</head>
+<body>
+    
+<div class="container">
+    <div class="item"><img src="https://source.unsplash.com/1600x900/?random" alt="Image 1"></div>
+    <div class="item"><img src="https://source.unsplash.com/1600x900/?random" alt="Image 2"></div>
+    <div class="item"><img src="https://source.unsplash.com/1600x900/?random" alt="Image 3"></div>
+    <div class="item"><img src="https://source.unsplash.com/1600x900/?random" alt="Image 4"></div>
+    <div class="item"><img src="https://source.unsplash.com/1600x900/?random" alt="Image 5"></div>
+    <div class="item"><img src="https://source.unsplash.com/1600x900/?random" alt="Image 6"></div>
+    <div class="item"><img src="https://source.unsplash.com/1600x900/?random" alt="Image 7"></div>
+    <div class="item"><img src="https://source.unsplash.com/1600x900/?random" alt="Image 8"></div>
+    
+
+    <!-- more images can be added as needed -->
+</div>
+</body>
+</html>
