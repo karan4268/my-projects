@@ -1,45 +1,39 @@
+        
         body {
-            background-image: url(./images/grunge-black-concrete-textured-background.jpg);
+            background-image: url(./images/codioful-formerly-gradienta-LeG68PrXA6Y-unsplash.jpg);
             background-size: cover;
             width: 100vw;
             height: 100vh;
         }
 
-        #clear {
-            width: 270px;
-            border: 3px solid gray;
-            border-radius: 3px;
-            padding: 20px;
-            background-color: whitesmoke;
-        }
-
         .formstyle {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family:Arial, Helvetica, sans-serif;
             background-color: transparent;
             max-width: 500px;
-            backdrop-filter: blur(20px);
+            max-height: 900px;
+            backdrop-filter: blur(50px);
             overflow: hidden;
             margin: auto;
-            border: 3px solid rgba(9, 9, 9, 0.126);
+            border: 3px solid rgba(255, 240, 240, 0.734);
             border-radius: 15px;
             padding: 20px;
         }
 
-        #func {
-            background-color: darkorange;
-            color: black;
+        .func{
+            color: rgb(0, 0, 0);
         }
 
-        #func:hover {
-            color: white;
+        .func:hover {
+            background-color: black;
+            color: rgb(253, 253, 253);
         }
 
         input {
             width: 100px;
             height: 100px;
-            background-color: rgba(40, 40, 39, 0.512);
+            background-color:transparent;
             color: black;
-            border: 3px solid gray;
+            border: 3px solid rgb(255, 251, 251);
             margin: 10px;
             border-radius: 50px;
             padding: 25px;
@@ -50,10 +44,10 @@
         }
 
         #dis {
-            background-color: rgba(0, 0, 0, 0.46);
-            width: 90%;
-            color: white;
-            border: 5px solid rgba(52, 50, 50, 0.455);
+            background-color: transparent;
+            width: 85%;
+            color: rgb(0, 0, 0);
+            border: 5px solid rgb(114, 114, 114);
             border-radius: 15px;
             padding: 20px;
             font-size: 5em;
@@ -61,9 +55,11 @@
         }
 
         input:hover {
-            transform: translateY(-5px);
+            transform: scale(1.110);
             transition: 0.2s ease;
-            color: lightgray;
+            color: aliceblue;
+            background-color: black;
+            border-color: aliceblue;
         }
 
         input:active {
@@ -79,9 +75,9 @@
             transform: scale(1);
         }
 
-        @media (max-width=600px) {
+        @media (max-width=1500px) {
             .formstyle {
-                display: flex;
+                display: grid;
                 justify-content: center;
                 align-items: center;
             }
