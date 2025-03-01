@@ -5,7 +5,6 @@ import os
 import webbrowser
 import datetime
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QTextEdit
-from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 import time
 
@@ -24,11 +23,9 @@ class VoiceAssistantApp(QWidget):
         super().__init__()
 
         self.setWindowTitle('Simple Voice Assistant')  # title of the window
-        self.setGeometry(100, 100, 500, 400)  # window size
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)  # Always on top
-        # Make the window transparent and remove black borders
-        self.setAttribute(Qt.WA_TranslucentBackground)  # Enables transparency
-        self.setAttribute(Qt.WA_TranslucentBackground)  # Enable translucent background
+        self.resize(500, 400)  # window size
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)  # Always on top 
+
         self.setStyleSheet("""
             QWidget {
                 background-color: rgba(122, 225, 195, 0.8);  /* Semi-transparent background */
@@ -124,6 +121,8 @@ class VoiceAssistantApp(QWidget):
                     "hi": self.greetings,
                     "What's up": self.greetings,
                     "what's today's date": self.tell_time,
+                    "how much battery is left": self.battery_status,
+                    "system status": self.system_status,
                 }
 
                 # Check if the command exists in the dictionary and call the associated function
@@ -154,32 +153,37 @@ class VoiceAssistantApp(QWidget):
 #can be changed according to the path of discord on your system
         engine.say("Opening Discord")
         engine.runAndWait()
+        return
 
     def open_settings(self, command):
         self.response_label.setText("Opening Windows Settings...")
         os.system("start ms-settings:")  # Opens Windows Settings
         engine.say("Opening Windows Settings")
         engine.runAndWait()
+        return
 
 #greetings
     def greetings(self, command):
         self.response_label.setText("Hello! How can I help you?😊")
         engine.say("Hello! How can I help you?")
         engine.runAndWait()
+        return
 
     def open_GitHub(self, command):
         self.response_label.setText("Opening GitHub...")
         webbrowser.open(f"https://www.gitHub.com/")  # Opens GitHub
         engine.say("Opening GitHub.com")
         engine.runAndWait()
+        return
 
     def tell_time(self, command): #tell the current system time
         time_now = datetime.datetime.now().strftime("%H:%M")
-        self.response_label.setText(f"The time is {time_now}")
+        self.response_label.setText(f"The time is {time_now} & the date is {datetime.datetime.now().strftime('%d-%m-%Y')}")
         date = datetime.datetime.now().strftime("%d-%m-%Y")
-        engine.say(f"The date is {date}")
         engine.say(f"The time is {time_now}")
+        engine.say(f"The date is {date}")
         engine.runAndWait()
+        return
 
     def search_google(self, command): #search google for the query given by user
         query = command.replace("search google for", "").strip()
@@ -187,11 +191,33 @@ class VoiceAssistantApp(QWidget):
         self.response_label.setText(f"Searching Google for {query}")
         engine.say(f"Searching Google for {query}")
         engine.runAndWait()
+        return
     
     def repeat_command(self, command): #repeat user's command
         self.response_label.setText(f"Reapeating what you said:")
         engine.say(f"{command}")
         engine.runAndWait()
+        return
+    
+    #system status
+    def battery_status(self, command): #tell the battery status of the system
+        import psutil
+        battery = psutil.sensors_battery()
+        self.response_label.setText(f"Your system is running on {battery.percent}% battery")
+        engine.say(f"Your system is running on {battery.percent}% battery")
+        engine.runAndWait()
+        return
+    
+    #system status
+    def system_status(self, command): #tell the system status
+        import psutil
+        battery = psutil.sensors_battery()
+        cpu_usage = psutil.cpu_percent()
+        ram = psutil.virtual_memory()
+        self.response_label.setText(f"Your system is running on {battery.percent}% battery, CPU usage is {cpu_usage}% and RAM is {ram.percent}%")
+        engine.say(f"Your system is running on {battery.percent}% battery, CPU usage is {cpu_usage}% and RAM is {ram.percent}%")
+        engine.runAndWait()
+        return
 
     def close_assistant(self, command):
         self.response_label.setText("Goodbye! ✌️")
