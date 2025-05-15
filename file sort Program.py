@@ -1,8 +1,8 @@
 import os
 import shutil
 import fitz  # PyMuPDF for PDFs
-import docx  # for dox
-import nltk  # tokenizer
+import docx  # for dox files
+import nltk  # tokenizer 
 
 nltk.download('punkt_tab')
 from nltk.tokenize import word_tokenize
