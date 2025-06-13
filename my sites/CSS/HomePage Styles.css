@@ -1,0 +1,249 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+*,
+::before *,
+::after {
+    box-sizing: border-box;
+}
+
+body {
+    /* gardient bg */
+    /*background: linear-gradient(-60deg, #c42e00, #171616, #ae00ff , #e7c127, #ff5100);*/
+    background-size: 1000% 1000%;
+    background-image: url(./images/04-Pink_Orange_DM-4K.png); /*for blur checking only*/
+    animation: gradient 50s ease-in-out infinite;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* animation code */
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+
+}
+
+/* nav bar styles */
+
+/* header specific hidden and show values */
+header {
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    
+}
+
+header.hidden {
+    opacity: 0;
+    transition: all 1s;
+    filter: blur(10px);
+    transform: translate(0);
+    transition-delay: 100ms;
+}
+
+header.show {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0);
+    transition-delay: 50ms;
+    box-shadow: rgba(0, 0, 0, 0.425) 0px 0px 5px;
+}
+
+/* nav-item */
+.nav-item {
+    padding: 0.2px 5px;
+    color: antiquewhite;
+    font-size: 1.2rem;
+    user-select: none;
+}
+
+.navbar-brand {
+    user-select: none;
+}
+
+.nav-item:hover {
+    background-color: rgba(0, 0, 0, 0.115);
+    border-radius: 15px;
+    transition: 0.5s ease;
+    transform: translateY(-5px);
+
+}
+.nav-item:active{
+    transform: scale(0.9);
+    transition: 0.5s ease;
+}
+
+.navbar-toggler {
+    padding: 10px;
+}
+
+.navbar-toggler:active {
+    transition: 0.1s ease;
+    transform: scale(0.89);
+}
+
+/* logos */
+.logo {
+    padding-bottom: 5px;
+    margin-right: 10px;
+    
+
+}
+/* logo hover */
+#alp:hover {
+    transform: translateY(-30px);
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(50px);
+    border-radius: 10%;
+    transition: transform 0.8s ease;
+    -webkit-box-reflect: below 10px linear-gradient(to bottom, rgba(0, 0, 0, 0.0), rgba(0, 0, 0, 0.4));
+    cursor: pointer;
+}
+
+/* logo transtion */
+.learn {
+    display: flex;
+    display: column;
+    border-radius: 14px;
+}
+
+.leran:nth-child(1) {
+    padding: 20px;
+    transition-delay: 200ms;
+    border-radius: 14px;
+}
+
+.leran:nth-child(2) {
+    padding: 20px;
+    transition-delay: 400ms;
+    border-radius: 14px;
+}
+
+.leran:nth-child(3) {
+    padding: 20px;
+    transition-delay: 600ms;
+    border-radius: 1px;
+}
+
+.leran:nth-child(4) {
+    padding: 20px;
+    transition-delay: 800ms;
+    border-radius: 12px;
+
+}
+
+
+/* scroll animatiom */
+.hidden {
+    opacity: 0;
+    transition: all 1s;
+    filter: blur(10px);
+    transform: translate(-50%);
+    transition-delay: 100ms;
+}
+
+.show {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0);
+    transition-delay: 50ms;
+}
+
+section {
+    display: grid;
+    place-items: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+footer {
+    color: antiquewhite;
+    text-align: center;
+    width: 100%;
+    bottom: 0;
+    padding: 5px;
+}
+
+/* small screen view */
+@media (max-width: 1100px) {
+    .learn {
+        display: grid;
+    }
+
+    .leran:nth-child(1) {
+        padding: 20px;
+        transition-delay: 250ms;
+        border-radius: 12px
+    }
+
+    .leran:nth-child(2) {
+        padding: 20px;
+        transition-delay: 500ms;
+        border-radius: 12px
+    }
+
+    .leran:nth-child(3) {
+        padding: 20px;
+        transition-delay: 600ms;
+        border-radius: 12px
+    }
+
+    .leran:nth-child(4) {
+        padding: 20px;
+        transition-delay: 800ms;
+        border-radius: 12px
+    }
+
+    header {
+        filter: blur(5px);
+    }
+
+    .nav-item {
+        padding: 0px 5px;
+        user-select: none;
+    }
+
+    /* logo hover vertical */
+        .nav-item:active {
+            transform: scale(0.9);
+            transition: 0.5s ease;
+
+        }
+    #alp:hover {
+        transform: scale(1.05);
+        /* zoom effect */
+        transition: 0.8s ease;
+        padding: auto;
+        -webkit-box-reflect: left 0px linear-gradient(to left, rgba(0, 0, 0, 0.0), rgba(0, 0, 0, 0.2));
+    }
+
+    .navbar-brand {
+        user-select: none;
+    }
+
+    .nav-item:hover {
+        background-color: rgba(41, 41, 41, 0.1);
+        border-radius: 15px;
+        transition: 0.1s ease;
+        transform: translateY(-5px);
+    }
+
+    .logo {
+        padding-bottom: 5px;
+        margin-right: 10px;
+    }
+
+}

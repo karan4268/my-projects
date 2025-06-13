@@ -1,0 +1,205 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+*,
+::before *,
+::after {
+box-sizing: border-box;
+}
+
+body {
+    /* old background */
+    /* background: linear-gradient(-45deg, #c42e00, #cf2868, #000000, #008353);
+    background-size: 800% 800%;*/
+    animation: gradient 120s ease infinite; 
+    background: url(./images/glass-blur-background-glassmorphism-Blender-minimalism-gradient-2184759.jpg) no-repeat;
+    width: 100vw;
+    height: 100vh;
+    background-position: center;
+
+}
+
+/* animation code*/
+@keyframes gradient {
+    0% {
+    background-position: 0% 50%;
+    }
+
+    50% {
+    background-position: 100% 50%;
+    }
+
+    100% {
+    background-position: 0% 50%;
+    }
+  } 
+
+span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+footer {
+    color: antiquewhite;
+    width: 100vw;
+    text-align: center;
+    bottom: 0;
+    padding: 5px;
+
+}
+
+/* nav bar styles */
+header{
+    background: transparent;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: solid rgba(255, 255, 255, 0.2);
+    
+}
+
+.nav-item {
+    padding: 0.2px 5px;
+    color: antiquewhite;
+    font-size: 1.2rem;
+    user-select: none;
+}
+
+.navbar-brand {
+    user-select: none;
+}
+
+.nav-item:hover {
+    background-color: rgba(41, 41, 41, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    transition: 0.5s ease;
+    transform: translateY(-5px);
+}
+
+.navbar-toggler {
+    padding: 10px;
+    color: #030303;
+}
+
+.navbar-toggler:active {
+    transition: 0.1s ease;
+    transform: scale(0.89);
+}
+
+.logo {
+    padding-bottom: 5px;
+    margin-right: 10px;
+}
+
+  /* contact us  */
+.Contact {
+    font-size: 2em;
+    text-align: center;
+    color: antiquewhite;
+}
+
+/* form style */
+.Forms {
+    display: grid;
+    background: transparent;
+    border: solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    box-shadow: rgba(0, 0, 0, 0.425) 0px 0px 5px;
+    padding: 20px;
+    border-radius: 16px;
+    width: 400px;
+}
+
+label {
+    color: antiquewhite;
+    display: block;
+    margin-bottom: 10px;
+}
+
+input {
+    width: 75%;
+    padding: 12px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+}
+
+.button {
+    color: lightgoldenrodyellow;
+    background: transparent;
+    border: solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    padding: 10px;
+    border-radius: 12px;
+    width: 135px;
+}
+
+.button:hover {
+    transition: 0.5s ease;
+    transform: translateY(-5px);
+
+}
+
+.backtohome {
+    color: lightgoldenrodyellow;
+    background: transparent;
+    border: solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    padding: 10px 15px;
+    border-radius: 12px;
+}
+
+.backtohome:hover {
+    transition: 0.5s ease;
+    transform: translateY(-5px);
+}
+
+#Select {
+    width: 75%;
+    padding: 12px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+}
+
+  /* scroll animation */
+.hidden {
+    opacity: 0;
+    transition: all 1s;
+    filter: blur(10px);
+    transform: translate(0);
+    transition-delay: 100ms;
+
+}
+
+.show {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0);
+}
+@media (max-width: 800px) {
+    .Forms {
+            display: grid;
+            background: transparent;
+            border: solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            border-radius: 16px;
+            width: 300px;
+        }
+    .nav-item:hover {
+            background-color: rgba(41, 41, 41, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            width: 170px;
+            transition: 0.5s ease;
+            transform: translateY(-5px);
+        }
+
+}
