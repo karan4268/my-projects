@@ -150,7 +150,7 @@ class VoiceAssistantApp(QWidget):
     def open_discord(self, command):
         self.response_label.setText("Opening Discord...")
         os.system(r"C:\Users\karan\AppData\Local\Discord\Update.exe --processStart ""Discord.exe""") 
-#can be changed according to the path of discord on your system
+#can be changed according to the path of discord/ sny other app on your system
         engine.say("Opening Discord")
         engine.runAndWait()
         return
