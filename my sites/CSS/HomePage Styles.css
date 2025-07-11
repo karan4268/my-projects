@@ -30,9 +30,9 @@ body {
 }
 
 /* nav bar styles */
-
 header{
     backdrop-filter: blur(25px);
+    
 }
 nav{
     background-color: rgba(255, 255, 255, 0.05);
@@ -73,7 +73,6 @@ header.show {
 }
 .nav-item:hover {
     background:linear-gradient(rgba(235, 226, 231, 0.266), rgba(0, 0, 0, 0.25));
-    border: solid rgba(255, 255, 255, 0.2);
     border-radius:8px 25px 8px 25px;
 }
 
