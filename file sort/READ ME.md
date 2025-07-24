@@ -24,9 +24,34 @@ A smart and stylish desktop file sorter built with Python and PyQt5. Automatical
 
 ## 🛠️ Setup
 
-### 🔹 1. Clone the Repo
+###  1. Clone the Repo
 ```bash
 git clone https://github.com/karan4268/file sort.git
 cd filesort
+```
+###  2. Create a Virtual Environment 
+python -m venv .venv
+.venv\Scripts\activate
 
+###  3. Install libs
+pip install -r requirements.txt
+
+###  4.RUN App
+python file_sorter.py
+
+⌨️Add Your Own Categories
+You can customize how files are sorted:
+
+Add .ext or keyword in the UI under any category
+
+Example: Add .webp to the Images category
+
+Changes take effect immediately.
+
+### Built With
+Python 3.10+
+
+Author
+>>![karan4268]("https://github.com/karan4268")
+Karandeep Chadda
 
