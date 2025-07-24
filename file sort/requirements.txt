@@ -1,0 +1,5 @@
+PyMuPDF>=1.22.0         # for reading PDFs using fitz
+python-docx>=0.8.11     # for extracting text from .docx files
+nltk>=3.8.1             # for tokenizing and keyword detection
+PyQt5>=5.15.4
+psutil>=5.9.0
