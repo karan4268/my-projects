@@ -53,7 +53,6 @@ Changes take effect immediately.
 Python 3.10+
 
 ### Author
->>![karan4268]
->>("https://github.com/karan4268")
+>>[karan4268]("https://github.com/karan4268")
 Karandeep Chadda
 
