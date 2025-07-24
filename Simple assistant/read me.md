@@ -15,10 +15,3 @@ A local voice assistant built with PyQt5, speech recognition, Supports:
 
 ## Setup
 
-```bash
-git clone https://github.com/karan4268/SimpleAssistant.git
-cd SimpleAssistant
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r lib requirements.txt
-
