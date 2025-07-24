@@ -54,5 +54,5 @@ Python 3.10+
 
 ### Author
 ("https://github.com/karan4268")
-### Karandeep Chadda
+### Karandeep Chadda (karan4268)
 
