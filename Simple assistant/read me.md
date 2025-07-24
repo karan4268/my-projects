@@ -1,4 +1,4 @@
-# 🎙️ AI Voice Assistant with PyQt5 + GPT4All (Falcon)
+# 🎙️ Voice Assistant with PyQt5 
 
 A local voice assistant built with PyQt5, speech recognition, Supports:
 
