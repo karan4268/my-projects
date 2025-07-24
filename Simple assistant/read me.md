@@ -3,7 +3,7 @@
 A local voice assistant built with PyQt5, speech recognition, Supports:
 
 - 🎤 Voice commands
-- 🪟 Beautiful UI
+- 🪟 Beautiful UI 
 - ⚙️ Voice rate/volume/voice customization
 - ## 📸 Screenshots
 
