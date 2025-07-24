@@ -17,8 +17,7 @@ pip install -r lib requirements.txt
 
 ## 📸 Screenshots
 
-
-### 🧠 Main Voice Assistant Interface
-![Main UI](screenshots/UI_main.png)
+### Main Voice Assistant Interface
+>>[Main UI](screenshots/UI_main.png)
 ### ⚙️ Settings Panel
-![Settings Panel](screenshots/Settings_Panel.png)
+>>[Settings Panel](screenshots/Settings_Panel.png)
