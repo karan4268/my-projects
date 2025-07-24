@@ -42,7 +42,7 @@ pip install -r requirements.txt
 ```bash
 python file_sorter.py
 ```
-⌨️ Add Your Own Categories
+## ⌨️ Add Your Own Categories
 You can customize how files are sorted:
 Add .ext or keyword in the UI under any category
 
