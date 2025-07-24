@@ -26,7 +26,7 @@ A smart and stylish desktop file sorter built with Python and PyQt5. Automatical
 
 ### 🔹 1. Clone the Repo
 ```bash
-git clone https://github.com/karan4268/FileSorter.git
-cd FileSorter
+git clone https://github.com/karan4268/file sort.git
+cd filesort
 
 
