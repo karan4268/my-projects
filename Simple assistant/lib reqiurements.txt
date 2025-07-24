@@ -1,0 +1,6 @@
+gpt4all
+llama-cpp-python @ https://abetlen.github.io/llama-cpp-python-cuBLAS-wheels/
+pyttsx3
+SpeechRecognition
+PyQt5
+psutil
