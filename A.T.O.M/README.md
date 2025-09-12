@@ -21,6 +21,13 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 ## Screenshots 📸
 
+## ▶️ A.T.O.M Features Demo
+
+[![Watch the video](./Screenshot%20(64).png)](./panels/ATOM's%20Features%20(1).mp4)
+
+[![Watch the video](./Screenshot%20(64).png)](./panels/ATOM's%20Features%20(2).mp4)
+
+
 ![A.T.O.M Main UI](path_to_screenshot_1.png)  
 ![CPU & RAM Panel](path_to_screenshot_2.png)  
 ![Chat Mode](path_to_screenshot_3.png)
