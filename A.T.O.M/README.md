@@ -84,6 +84,6 @@ Please fork the repository and submit a pull request.
 
 Created by Karandeep Chadda
 
-GitHub: github.com/karan4268
+GitHub: www.github.com/karan4268
 
 📩Email: karandeepchadda@gmail.com
