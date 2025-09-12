@@ -1,157 +1,146 @@
 # panels/KeyboardPanel.py
-from PyQt5.QtWidgets import QWidget, QPushButton, QGridLayout, QSizePolicy, QLineEdit, QTextEdit
+from PyQt5.QtWidgets import (
+    QWidget, QPushButton, QGridLayout, QSizePolicy,
+    QLineEdit, QTextEdit, QVBoxLayout, QSlider
+)
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFrame, QPushButton
+from PyQt5.QtCore import QPropertyAnimation, QSize, QEasingCurve
+from PyQt5.QtGui import QFont
 
+font = QFont("Orbitron")
 class KeyboardWidget(QWidget):
     def __init__(self, target_input=None, parent=None):
         super().__init__(parent)
         self.target_input = target_input
         self.shift_enabled = False
+        self.buttons = {}
         self.initUI()
 
     def initUI(self):
         layout = QGridLayout()
-        layout.setSpacing(6)
-        self.setLayout(layout)
-
-        # Define rows (basic grid, we’ll expand special keys)
-        rows = [
-            # Row 1: Numbers + Backspace 
-            ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "+", "BACK"],
-            # Row 2: QWERTY row 
-            ["Tab", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P","{}","[]"],
-            # Row 3: ASDF row 
-            ["caps", "A", "S", "D", "F", "G", "H", "J", "K", "L", ":;", '"', "ENTER"],
-            # Row 4: ZXCV row 
-            [None, "SHIFT", "Z", "X", "C", "V", "B", "N", "M", ".", ",",None, None],
-            # Row 5: Space bar (centered)
-            ["SPACE"]
+        layout.setSpacing(5)
+        keys = [
+            ['1','2','3','4','5','6','7','8','9','0','-','+','BACK'],
+            ['TAB','Q','W','E','R','T','Y','U','I','O','P','[',']'],
+            ['CAPS','A','S','D','F','G','H','J','K','L',';',"'",'ENTER'],
+            ['SHIFT','Z','X','C','V','B','N','M',',','.','?', 'SHIFT'],
+            [None,None,'SPACE']
         ]
 
-        self.buttons = {}
-
-        for row_idx, row in enumerate(rows):
-            col_idx = 0
-            for key in row:
+        for row, key_row in enumerate(keys):
+            col = 0
+            for key in key_row:
                 if key is None:
-                    col_idx += 1
+                    col += 1
                     continue
 
-                btn = QPushButton(key)
-                btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                button = QPushButton(key)
+                button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                button.setStyleSheet(self.key_style())
+                button.clicked.connect(lambda checked, k=key: self.on_key_press(k))
 
-                # Style
-                if key in ["SHIFT", "ENTER", "SPACE", "BACK"]:
-                    self.style_keyboard_button(btn, is_special=True)
-                else:
-                    self.style_keyboard_button(btn)
-
-                btn.clicked.connect(lambda _, k=key: self.handle_key_press(k))
-                self.buttons[key] = btn
-
-                # Custom sizes for special keys
+                # special sizing rules
                 if key == "SPACE":
-                    # Center the space bar by adding empty columns before and after
-                    total_cols = 10  # total columns in the widest row
-                    space_span = 6
-                    start_col = (total_cols - space_span) // 2
-                    layout.addWidget(btn, row_idx, start_col, 1, space_span)
-                    col_idx = total_cols  # skip all columns for this row
+                    layout.addWidget(button, row, col, 1, 5)  # wide
+                    col += 5
                 elif key == "SHIFT":
-                    layout.addWidget(btn, row_idx, col_idx, 1, 2)  # shift is wider
-                    col_idx += 2
-                elif key == "ENTER":
-                    layout.addWidget(btn, row_idx, col_idx, 1, 2)  # enter is wider
-                    col_idx += 2
+                    layout.addWidget(button, row, col, 1, 2)  # longer shift
+                    col += 2
                 elif key == "BACK":
-                    layout.addWidget(btn, row_idx, col_idx, 1, 2)  # backspace wider
-                    col_idx += 2
+                    layout.addWidget(button, row, col, 1, 2)  # long backspace
+                    col += 2
+                elif key == "ENTER":
+                    layout.addWidget(button, row, col, 1, 2)  # L-shape (2 rows tall, 2 col wide)
+                    col += 2
                 else:
-                    layout.addWidget(btn, row_idx, col_idx)
-                    col_idx += 1
+                    layout.addWidget(button, row, col, 1, 1)
+                    col += 1
 
-    def style_keyboard_button(self, btn, is_special=False):
-        if is_special:
-            btn.setStyleSheet("""
-                QPushButton {
-                    background: rgba(20, 20, 20, 0.4);
-                    border: 1px solid #00ffe0;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    color: #00ffe0;
-                }
-                QPushButton:hover {
-                    background: rgba(0, 255, 224, 0.15);
-                    border: 1px solid #00fff7;
-                }
-                QPushButton:pressed {
-                    background: rgba(77, 255, 219, 0.3);
-                }
-            """)
-        else:
-            btn.setStyleSheet("""
-                QPushButton {
-                    background: rgba(10, 10, 10, 0.25);
-                    border: 1px solid #007a7a;
-                    border-radius: 10px;
-                    font-size: 13px;
-                    color: #00ffe0;
-                }
-                QPushButton:hover {
-                    background: rgba(77, 255, 219, 0.1);
-                }
-                QPushButton:pressed {
-                    background: rgba(77, 255, 219, 0.25);
-                }
-            """)
+                self.buttons[key] = button
 
-    def handle_key_press(self, key):
+        self.setLayout(layout)
+
+    def key_style(self):
+        return """
+            QPushButton {
+                background-color: rgba(0, 0, 0, 0.25);
+                border: 1px solid rgba(77, 255, 219, 0.8);
+                border-radius: 6px;
+                font-size: 14px;
+                color: rgba(77, 255, 219, 0.8);
+            }
+            QPushButton:hover {
+                background-color: rgba(0, 255, 224, 0.2);
+            }
+            QPushButton:pressed {
+                background-color: rgba(0, 255, 224, 0.4);
+            }
+        """
+
+    def on_key_press(self, key):
         if not self.target_input:
             return
 
-        # Handle special keys
-        if key == "SPACE":
-            self.insert_text(" ")
-        elif key == "SHIFT":
-            self.shift_enabled = not self.shift_enabled
-        elif key == "ENTER":
-            self.insert_text("\n")
-        elif key == "BACK":
-            self.backspace()
-        elif key == "123":
-            # TODO: implement symbol/number layout switching
-            pass
-        else:
-            if self.shift_enabled:
-                key = key.upper()
-                self.shift_enabled = False
-            self.insert_text(key)
+        if isinstance(self.target_input, (QLineEdit, QTextEdit)):
+            cursor = self.target_input.textCursor() if isinstance(self.target_input, QTextEdit) else None
+            if key == "SPACE":
+                self.target_input.insertPlainText(" ") if cursor else self.target_input.insert(" ")
+            elif key == "ENTER":
+                self.target_input.insertPlainText("\n") if cursor else self.target_input.returnPressed.emit()
+            elif key == "BACK":
+                if cursor:
+                    cursor.deletePreviousChar()
+                else:
+                    self.target_input.backspace()
+            elif key == "TAB":
+                self.target_input.insertPlainText("\t") if cursor else self.target_input.insert("\t")
+            elif key == "SHIFT":
+                self.shift_enabled = not self.shift_enabled
+            elif key == "CAPS":
+                self.shift_enabled = not self.shift_enabled
+            else:
+                char = key.upper() if self.shift_enabled else key.lower()
+                self.target_input.insertPlainText(char) if cursor else self.target_input.insert(char)
 
-    def insert_text(self, text):
-        """ Insert text into QLineEdit or QTextEdit """
-        if isinstance(self.target_input, QLineEdit):
-            cursor_pos = self.target_input.cursorPosition()
-            current_text = self.target_input.text()
-            new_text = current_text[:cursor_pos] + text + current_text[cursor_pos:]
-            self.target_input.setText(new_text)
-            self.target_input.setCursorPosition(cursor_pos + len(text))
+class CollapsibleKeyboard(QWidget):
+    def __init__(self, target_input, parent=None):
+        super().__init__(parent)
+        self.target_input = target_input  # <-- this is your chat input
+        self.is_collapsed = True
+        self.toggle_btn = QPushButton("⌨ Keyboard")
+        self.toggle_btn.setCheckable(True)
+        self.toggle_btn.setChecked(False)
+        self.toggle_btn.setCursor(Qt.PointingHandCursor)
+        self.toggle_btn.setFont(font)
+        self.setToolTip("Toggle Keyboard")
+        self.toggle_btn.clicked.connect(self.toggle_keyboard)
+        
+        self.toggle_btn.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(0, 0, 0, 0.1);
+                border: 1px solid rgb(77, 255, 219);
+                border-radius: 25px;
+                color: rgb(77, 255, 219);
+                font-size: 12px;
+                text-align: left;
+                padding: 6px;
+                max-width: 85px;
+            }
+            QPushButton:checked {
+                background-color: rgba(77, 255, 219, 80);
+            }
+        """)
 
-        elif isinstance(self.target_input, QTextEdit):
-            cursor = self.target_input.textCursor()
-            cursor.insertText(text)
-            self.target_input.setTextCursor(cursor)
+        # This is the actual virtual keyboard
+        self.keyboard = KeyboardWidget(target_input=self.target_input)
+        self.keyboard.setVisible(False)  # hidden by default
 
-    def backspace(self):
-        if isinstance(self.target_input, QLineEdit):
-            cursor_pos = self.target_input.cursorPosition()
-            current_text = self.target_input.text()
-            if cursor_pos > 0:
-                new_text = current_text[:cursor_pos - 1] + current_text[cursor_pos:]
-                self.target_input.setText(new_text)
-                self.target_input.setCursorPosition(cursor_pos - 1)
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.toggle_btn)
+        layout.addWidget(self.keyboard)
 
-        elif isinstance(self.target_input, QTextEdit):
-            cursor = self.target_input.textCursor()
-            if cursor.position() > 0:
-                cursor.deletePreviousChar()
-                self.target_input.setTextCursor(cursor)
+    def toggle_keyboard(self):
+        self.is_collapsed = not self.is_collapsed
+        self.keyboard.setVisible(not self.is_collapsed)
+    

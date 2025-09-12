@@ -1,75 +1,18 @@
 import os
 import subprocess
+import sys
 import webbrowser
 import datetime
 import psutil
 import difflib
 import win32com.client
-from PyQt5 import QtCore  # ✅ Needed for processEvents()
-from chat_atom import OllamaWorker as chat_with_ollama
-from tts_atom import speak_response
-from voice_atom import listen_to_user  
-import threading
+import time
 
 # --- Global reference to terminal widget for interactive commands --- #
 terminal_widget_ref = None  # Will be set from UI_ATOM
-
-# --- Voice mode --- #
-def start_voice_mode(terminal_panel):
-    """
-    Starts non-blocking voice mode.
-    `terminal_panel` must be TerminalChat instance with `append_message(str)` signal-safe.
-    """
-    def _voice_loop():
-        import voice_atom  # local mic listener
-        terminal_panel.append_message("🟢 Voice mode activated. Say 'exit' to quit.\n")
-        stop_flag = False
-
-        def _callback(text):
-            nonlocal stop_flag
-            if not text:
-                terminal_panel.append_message("⚠️ No speech detected.\n")
-                return
-
-            terminal_panel.append_message(f"🎤 You said: {text}\n")
-
-            if text.lower().strip() in ["exit", "quit", "stop listening"]:
-                terminal_panel.append_message("🛑 Exiting voice mode.\n")
-                stop_flag = True
-                return
-
-            # first try hardwired commands
-            resp = handle_command(text)
-            if resp:
-                terminal_panel.append_message(f"A.T.O.M: {resp}\n")
-                threading.Thread(target=lambda: speak_response(resp), daemon=True).start()
-            else:
-                # fallback to LLM
-                def do_ai(q):
-                    try:
-                        reply = chat_with_ollama(q)
-                        terminal_panel.append_message(f"🗨️ A.T.O.M says: {reply}\n")
-                        threading.Thread(target=lambda: speak_response(reply), daemon=True).start()
-                    except Exception as e:
-                        terminal_panel.append_message(f"⚠️ LLM error: {e}\n")
-                threading.Thread(target=do_ai, args=(text,), daemon=True).start()
-
-        # start mic listener (non-blocking)
-        voice_atom.start_listening(_callback)
-
-        # keep thread alive until user says exit
-        while not stop_flag:
-            QtCore.QThread.msleep(100)
-
-        # stop listening
-        voice_atom.stop_listening()
-
-    threading.Thread(target=_voice_loop, daemon=True).start()
-
-
 # --- Custom app paths for specific apps --- #
 custom_apps = {
-    "discord": r"C:\Users\karan\AppData\Local\Discord\Update.exe --processStart Discord.exe --process-start-args --system-tray",
+    "discord": r"C:\Users\karan\AppData\Local\Discord\Update.exe --processStart Discord.exe --process-start-args --system-tray",# for example only , discord can also be launched using windows virtual appsfolder
 }
 
 def launch_custom_app(name):
@@ -128,7 +71,11 @@ def system_status():
 
 def info_about_atom():
     return "I am ATOM, a LLM based on Microsoft's PHI-3 model. How can I assist you today?"
-    
+
+def quit():
+    time.sleep(0.5)  # Delay for 0.5 seconds before exit
+    sys.exit(0)
+
 
 # --- Command dictionary --- #
 command_map = {
@@ -146,11 +93,14 @@ command_map = {
     "sys info": system_status,
     "sys status": system_status,
     "who are you?": info_about_atom,
-
+    "quit": quit,
+    "exit": quit,
+    "bye": quit,
+    "shutdown": quit
 }
 
 
-# --- Main command handler (✅ only one now) --- #
+# --- Main command handler --- #
 def handle_command(text):
     text = text.lower().strip()
 
@@ -162,17 +112,6 @@ def handle_command(text):
     close = difflib.get_close_matches(text, command_map.keys(), n=1, cutoff=0.6)  
     if close:
         return command_map[close[0]]()
-
-    # --- Voice mode ---
-
-    if text == "voice mode":
-        if terminal_widget_ref:
-            # Run in background thread to avoid freezing UI
-            threading.Thread(target=lambda: start_voice_mode(terminal_widget_ref), daemon=True).start()
-            return "Voice mode started."
-        else:
-            threading.Thread(target=start_voice_mode, daemon=True).start()
-            return "Voice mode started in console."
 
 
     # --- App launching --- #

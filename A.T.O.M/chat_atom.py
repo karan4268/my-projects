@@ -1,40 +1,36 @@
-import requests
 from PyQt5.QtCore import QThread, pyqtSignal
+import ollama
 
-class OllamaWorker(QThread):
+class LLMWorker(QThread):
     new_chunk = pyqtSignal(str)
     finished = pyqtSignal()
 
-    def __init__(self, message, model="phi3"):
-        super().__init__()
-        self.message = message
+    def __init__(self, prompt: str, model: str = "phi3", parent=None):
+        super().__init__(parent)
+        self.prompt = prompt
         self.model = model
+        self._running = True
 
     def run(self):
-        url = "http://localhost:11434/api/generate"
-        headers = {"Content-Type": "application/json"}
-        payload = {
-            "model": self.model,
-            "prompt": self.message,
-            "stream": True
-        }
-
         try:
-            # streaming response
-            with requests.post(url, json=payload, headers=headers, stream=True) as r:
-                for line in r.iter_lines(decode_unicode=True):
-                    if not line:
-                        continue
-                    try:
-                        data = requests.utils.json.loads(line)
-                        chunk = data.get("response", "")
-                        if chunk:
-                            self.new_chunk.emit(chunk)
-                        if data.get("done", False):
-                            break
-                    except Exception:
-                        continue
-        except Exception as e:
-            self.new_chunk.emit(f"[Error] {e}")
+            stream = ollama.chat(
+                model=self.model,
+                messages=[{"role": "user", "content": self.prompt}],
+                stream=True
+            )
 
-        self.finished.emit()
+            for chunk in stream:
+                if not self._running:
+                    break
+
+                # ✅ Each chunk is already incremental text
+                if "message" in chunk and "content" in chunk["message"]:
+                    self.new_chunk.emit(chunk["message"]["content"])
+
+        except Exception as e:
+            self.new_chunk.emit(f"[Error: {e}]")
+        finally:
+            self.finished.emit()
+
+    def stop(self):
+        self._running = False

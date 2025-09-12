@@ -1,13 +1,15 @@
 import sys
 import ctypes
 import threading
+import command
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMenu
+from PyQt5.QtCore import pyqtSignal, QTimer, QMetaObject, Qt
 from PyQt5.QtGui import QFont, QMovie
-from PyQt5.QtCore import Qt
 
 # main functions
-from main_atom import start_ollama, process_query
+import voice_atom
+from main_atom import start_ollama, stop_ollama
 from tts_atom import speak_response
 from local_engine import get_response_from_atom
 from command import handle_command
@@ -15,7 +17,8 @@ from command import handle_command
 # widget panels import
 from panels.SystemPanel import SystemPanel
 from panels.TerminalPanel import TerminalChat
-from panels.KeyboardPanel import KeyboardWidget  
+from panels.KeyboardPanel import KeyboardWidget
+from panels.KeyboardPanel import CollapsibleKeyboard  # collapsible toggle for keyboard
 
 # voice logic (non-blocking)
 import voice_atom
@@ -23,98 +26,47 @@ import voice_atom
 # font
 font = QFont("Orbitron")
 
-#---------------------------------------------------#
-#               startup/splash screen               #
-#---------------------------------------------------#
+
+# ---------------------------------------------------#
+#               startup/splash screen                #
+# ---------------------------------------------------#
 class SplashScreen(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.resize(400, 300)
+        self.apply_blur_effect()
 
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignCenter)
 
         self.label_title = QLabel("A.T.O.M")
         self.label_title.setFont(QFont("Orbitron", 30))
-        self.label_title.setStyleSheet("color: cyan;")
+        self.label_title.setStyleSheet("color: rgb(77, 255, 219);")
         layout.addWidget(self.label_title)
 
         self.label_status = QLabel("Initializing...")
         self.label_status.setFont(QFont("Orbitron", 12))
-        self.label_status.setStyleSheet("color: white;")
+        self.label_status.setStyleSheet("color: gray;")
         layout.addWidget(self.label_status)
 
-        # Optional: round loading gif
+        # round loading gif
         self.loading_gif = QLabel()
-        self.movie = QMovie("loading.gif")  # put a small circular gif in project
+        self.loading_gif.setAlignment(Qt.AlignCenter)
+        self.movie = QMovie("A.T.O.M/loading.gif")  # circular oading animation
         self.loading_gif.setMovie(self.movie)
         self.movie.start()
-        layout.addWidget(self.loading_gif)
+        layout.addWidget(self.loading_gif, alignment=Qt.AlignCenter)
 
         self.setLayout(layout)
 
     def update_status(self, text):
         self.label_status.setText(text)
 
-
-#---------------------------------------------------#
-#      for displaying text in the terminal          #
-#---------------------------------------------------#
-class StreamRedirector(QtCore.QObject):
-    message_signal = QtCore.pyqtSignal(str)  # safe type for cross-thread signal
-
-    def __init__(self, write_callback):
-        super().__init__()
-        # Connect the signal to the terminal append function
-        self.message_signal.connect(write_callback)
-
-    def write(self, text):
-        if text and str(text).strip():
-            # emit signal to safely update GUI in main thread
-            self.message_signal.emit(str(text))
-
-    def flush(self):
-        pass
-
-
-#---------------------------------------------------#
-#                      Main UI                       #
-#---------------------------------------------------#
-class AtomUI(QMainWindow):
-    voice_result = QtCore.pyqtSignal(object)  # receives strings or None
-
-    def __init__(self):
-        super().__init__()
-        self.setGeometry(100, 100, 1200, 800)
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
-        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-        self.setStyleSheet("background-color: rgba(0, 0, 0, 0.2); color:rgb(77, 255, 219); border-radius: 5px; border: 1px solid rgba(179, 255, 240, 0.2);")
-        try:
-            self.apply_blur_effect()
-        except Exception:
-            pass
-
-        self.offset = None
-        self.chat_input = None         # <-- will be set after TerminalChat is built
-        self.keyboard_panel = None
-
-        self.init_ui()
-
-        # redirect stdout/stderr to terminal panel safely
-        try:
-            sys.stdout = StreamRedirector(self.terminal_panel.append_message)
-            sys.stderr = StreamRedirector(self.terminal_panel.append_message)
-        except Exception as e:
-            print(f"Redirection failed: {e}")
-
-        # connect signal
-        self.voice_result.connect(self._on_voice_result)
-
-#---------------------------------------------------#
-#               win 11 blur effect                  #
-#---------------------------------------------------#
+    # ---------------------------------------------------#
+    #           win 11 blur effect for splash            #
+    # ---------------------------------------------------#
     def apply_blur_effect(self):
         hwnd = int(self.winId())
 
@@ -140,9 +92,137 @@ class AtomUI(QMainWindow):
 
         ctypes.windll.user32.SetWindowCompositionAttribute(hwnd, ctypes.byref(data))
 
-#---------------------------------------------------#
-#                    UI & Layout                    #
-#---------------------------------------------------#
+
+# ---------------------------------------------------#
+#      for displaying text in the terminal           #
+# ---------------------------------------------------#
+class StreamRedirector(QtCore.QObject):
+    message_signal = QtCore.pyqtSignal(str)  # safe type for cross-thread signal
+
+    def __init__(self, write_callback):
+        super().__init__()
+        # Connect the signal to the terminal append function
+        self.message_signal.connect(write_callback)
+
+    def write(self, text):
+        if text and str(text).strip():
+            # emit signal to safely update GUI in main thread
+            self.message_signal.emit(str(text))
+
+    def flush(self):
+        pass
+
+
+# ---------------------------------------------------#
+#                      Main UI                        #
+# ---------------------------------------------------#
+class AtomUI(QMainWindow):
+    voice_result = QtCore.pyqtSignal(object)  # receives strings or None
+
+    def __init__(self):
+        super().__init__()
+        self.no_speech_counter = 0 # for no speech detection in continuous mode
+        self.setGeometry(100, 100, 1200, 800)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.setStyleSheet("background-color: rgba(0, 0, 0, 0.2); color:rgb(77, 255, 219); border-radius: 5px; border: 1px solid rgba(179, 255, 240, 0.2);")
+        try:
+            self.apply_blur_effect()
+        except Exception:
+            pass
+
+        self.offset = None
+        self.chat_input = None         # <-- will be set after TerminalChat is built
+        self.keyboard_panel = None
+
+        # voice-mode state
+        self.voice_mode = None  # "continuous", "oneshot", or None
+
+        # build UI (this sets up self.terminal_panel etc.)
+        self.init_ui()
+
+        # 30s silence auto-stop timer (only used in continuous mode)
+        self.silence_timer = QTimer(self)
+        self.silence_timer.setInterval(30_000)  #30 sec
+        self.silence_timer.setSingleShot(True)
+        self.silence_timer.timeout.connect(self._auto_stop_due_to_silence)
+
+        # redirect stdout/stderr to terminal panel safely
+        try:
+            sys.stdout = StreamRedirector(self.terminal_panel.append_message)
+            sys.stderr = StreamRedirector(self.terminal_panel.append_message)
+        except Exception as e:
+            print(f"Redirection failed: {e}")
+
+        # connect legacy voice_result signal if used
+        self.voice_result.connect(self._on_voice_result)
+
+    # --------------------------------------------#
+    #           Cleanup on close                  #
+    # --------------------------------------------#
+    def closeEvent(self, event):
+        try:
+            print("Closing A.T.O.M window... shutting down services.")
+
+            # --- Stop Ollama worker ---
+            if hasattr(self, "ollama_worker") and self.ollama_worker:
+                try:
+                    if self.ollama_worker.isRunning():
+                        print("Stopping Ollama worker thread...")
+                        # best-effort stop; OllamaWorker should implement stop()
+                        try:
+                            self.ollama_worker.stop()
+                        except Exception:
+                            pass
+                        self.ollama_worker.wait(1000)  # wait up to 1s
+                except Exception:
+                    pass
+
+            # --- Stop voice listener (best-effort) ---
+            try:
+                voice_atom.stop_listening()
+            except Exception as e:
+                print(f"⚠️ Voice listener stop error: {e}")
+
+            # --- Optional: stop Ollama server process ---
+            # stop_ollama()
+
+        except Exception as e:
+            print(f"⚠️ Error during shutdown: {e}")
+
+        event.accept()
+
+    # ---------------------------------------------------#
+    #       win 11 blur effect for main window           #
+    # ---------------------------------------------------#
+    def apply_blur_effect(self):
+        hwnd = int(self.winId())
+
+        class ACCENTPOLICY(ctypes.Structure):
+            _fields_ = [("AccentState", ctypes.c_int),
+                        ("AccentFlags", ctypes.c_int),
+                        ("GradientColor", ctypes.c_int),
+                        ("AnimationId", ctypes.c_int)]
+
+        class WINCOMPATTRDATA(ctypes.Structure):
+            _fields_ = [("Attribute", ctypes.c_int),
+                        ("Data", ctypes.POINTER(ACCENTPOLICY)),
+                        ("SizeOfData", ctypes.c_size_t)]
+
+        accent = ACCENTPOLICY()
+        accent.AccentState = 3
+        accent.GradientColor = 0x99000000
+
+        data = WINCOMPATTRDATA()
+        data.Attribute = 19
+        data.Data = ctypes.pointer(accent)
+        data.SizeOfData = ctypes.sizeof(accent)
+
+        ctypes.windll.user32.SetWindowCompositionAttribute(hwnd, ctypes.byref(data))
+
+    # ---------------------------------------------------#
+    #                    UI & Layout                     #
+    # ---------------------------------------------------#
     def init_ui(self):
         titlebar = QtWidgets.QHBoxLayout()
         title_label = QtWidgets.QLabel("A.T.O.M")
@@ -164,21 +244,30 @@ class AtomUI(QMainWindow):
         settings_button.setCursor(QtCore.Qt.PointingHandCursor)
         # settings_button.clicked.connect(self.open_settings_panel)  # your settings logic
 
-        # mic toggle
-        self.voice_toggle_btn = QtWidgets.QPushButton("🎙️")
-        self.voice_toggle_btn.setCheckable(True)
-        self.voice_toggle_btn.clicked.connect(self._on_voice_toggle_clicked)
-        self.voice_toggle_btn.setToolTip("Toggle Voice Recognition")
-        self.voice_toggle_btn.setCursor(QtCore.Qt.PointingHandCursor)
+        # mic toggle (dropdown for voice mode selection)
+        self.mic_button = QPushButton("🎙️ Mic")
+        self.mic_button.setToolTip("Choose Voice Mode")
+        self.mic_button.setFixedSize(150, 30)  # keep wider button for label
 
-        for btn in (self.minimize_btn, self.close_btn, settings_button, self.max_btn, self.voice_toggle_btn):
+        menu = QMenu(self)
+        continuous_action = menu.addAction("🎧 Continuous listening")
+        continuous_action.triggered.connect(lambda: self.start_voice_mode("continuous"))
+        oneshot_action = menu.addAction("🎤 One-shot/Click-to-talk")
+        oneshot_action.triggered.connect(lambda: self.start_voice_mode("oneshot"))
+        self.mic_button.setMenu(menu)
+
+        # Clicking the button itself stops current listening session (if any)
+        self.mic_button.clicked.connect(self.stop_voice_mode)
+
+        # Style buttons
+        for btn in (self.minimize_btn, self.close_btn, settings_button, self.max_btn):
             btn.setFixedSize(30, 30)
             btn.setCursor(QtCore.Qt.PointingHandCursor)
             btn.setStyleSheet('''
                 QPushButton{
-                    background-color: rgba(0, 255, 255, 0.1); 
-                    color: rgb(77, 255, 219); 
-                    font-size: 18px; border: none; 
+                    background-color: rgba(0, 255, 255, 0.1);
+                    color: rgb(77, 255, 219);
+                    font-size: 18px; border: none;
                     border-radius: 15px;
                 }
                 QPushButton:checked {
@@ -186,13 +275,30 @@ class AtomUI(QMainWindow):
                 }
             ''')
             btn.setFont(font)
+
+        # Give mic its own (wider) style
+        self.mic_button.setStyleSheet('''
+            QPushButton{
+                background-color: rgba(0, 255, 255, 0.1);
+                color: rgb(77, 255, 219);
+                font-size: 14px; border: none;
+                border-radius: 6px;
+                padding: 0px 8px;
+            }
+            QPushButton:checked {
+                background-color: rgba(77, 255, 219, 0.8);
+            }
+        ''')
+        self.mic_button.setFont(font)
+
         self.close_btn.setStyleSheet("background-color: red; color: rgb(77, 255, 219); font-size: 18px; border-radius: 15px; border: none;")
         self.minimize_btn.clicked.connect(self.showMinimized)
         self.close_btn.clicked.connect(self.close)
         self.max_btn.setToolTip("Fullscreen")
 
+        # add to titlebar (order preserved)
+        titlebar.addWidget(self.mic_button)
         titlebar.addWidget(settings_button)
-        titlebar.addWidget(self.voice_toggle_btn)
         titlebar.addWidget(self.minimize_btn)
         titlebar.addWidget(self.max_btn)
         titlebar.addWidget(self.close_btn)
@@ -209,29 +315,27 @@ class AtomUI(QMainWindow):
         self.system_panel = SystemPanel()
         self.terminal_panel = TerminalChat()
 
+        command.terminal_widget_ref = self.terminal_panel  # ref for voice mode function in command.py
 
-
-        # wire terminal reference (command module expects it)
-        import command
-        command.terminal_widget_ref = self.terminal_panel
-
-        # ---- FIND THE REAL INPUT WIDGET FROM TerminalChat ----
+        # Instead of passing terminal_panel directly, grab the input widget
         self.chat_input = self._find_input_widget(self.terminal_panel)
 
-        # ---- CREATE KEYBOARD once we have the input ----
-        self.keyboard_panel = KeyboardWidget(target_input=self.chat_input)
+        # Now CollapsibleKeyboard correctly wraps a KeyboardWidget
+        self.keyboard_panel = CollapsibleKeyboard(self.chat_input)
 
+        # Add panels to layouts
         upper_layout.addWidget(self.system_panel)
         upper_layout.addWidget(self.terminal_panel)
         lower_layout.addWidget(self.keyboard_panel)
+
         main_layout.addLayout(upper_layout)
         main_layout.addLayout(lower_layout)
 
         central_widget.setLayout(main_layout)
 
-#---------------------------------------------------#
-#        Event Handlers  for window dragging        #
-#---------------------------------------------------#
+    # ---------------------------------------------------#
+    #        Event Handlers  for window dragging         #
+    # ---------------------------------------------------#
     def showEvent(self, event):
         super().showEvent(event)
         if self.chat_input:
@@ -258,43 +362,136 @@ class AtomUI(QMainWindow):
         self.offset = None
         super().mouseReleaseEvent(event)
 
-#---------------------------------------------------#
-#                voice toggler handlers             #
-#---------------------------------------------------#
-    def _on_voice_toggle_clicked(self, checked):
-        self.voice_toggle_btn.setEnabled(False)
-        if checked:
+    # ---------------------------------------------------#
+    #    Voice mode helpers (start/stop + auto-stop)     #
+    # ---------------------------------------------------#
+    def start_voice_mode(self, mode="oneshot"):
+
+        if self.voice_mode:
+            self.stop_voice_mode()
+            return
+
+        self.voice_mode = mode
+        QMetaObject.invokeMethod(self, "set_mic_state", Qt.QueuedConnection,
+                                QtCore.Q_ARG(object, mode))
+        QMetaObject.invokeMethod(self.terminal_panel, "append_message", Qt.QueuedConnection,
+                                QtCore.Q_ARG(str, f"🎙️ Voice mode started ({mode})."))
+
+        def callback(text):
+            if not text:  # no speech detected
+                self.no_speech_counter += 1
+                if self.no_speech_counter >= 3:
+                    QMetaObject.invokeMethod(
+                        self.terminal_panel,
+                        "append_message",
+                        Qt.QueuedConnection,
+                        QtCore.Q_ARG(str, "⚠️ No speech detected.")
+                    )
+                    self.no_speech_counter = 0
+                return
+            else:
+                self.no_speech_counter = 0
+
+            if not text:
+                QMetaObject.invokeMethod(self.terminal_panel, "append_message",
+                                        Qt.QueuedConnection,
+                                        QtCore.Q_ARG(str, "⚠️ No speech detected."))
+                if mode == "oneshot":
+                    QMetaObject.invokeMethod(self, "stop_voice_mode", Qt.QueuedConnection)
+                return
+
+            if mode == "continuous":
+                QMetaObject.invokeMethod(self.silence_timer, "start", Qt.QueuedConnection)
+
+            QMetaObject.invokeMethod(self.terminal_panel, "append_message",
+                                    Qt.QueuedConnection,
+                                    QtCore.Q_ARG(str, f"User: {text}"))
+
+            # Hardwired commands first
+            resp = None
             try:
-                voice_atom.start_listening(self._voice_callback)
+                from command import handle_command
+                resp = handle_command(text)
             except Exception as e:
-                self.terminal_panel.append_message(f"⚠️ Failed to start listener: {e}")
-                self.voice_toggle_btn.setChecked(False)
-        else:
-            voice_atom.stop_listening()
-        self.voice_toggle_btn.setEnabled(True)
+                QMetaObject.invokeMethod(self.terminal_panel, "append_message",
+                                        Qt.QueuedConnection,
+                                        QtCore.Q_ARG(str, f"⚠️ Command error: {e}"))
 
-    def _voice_callback(self, text):
+            if resp:
+                QMetaObject.invokeMethod(self.terminal_panel, "append_message",
+                                        Qt.QueuedConnection,
+                                        QtCore.Q_ARG(str, f"A.T.O.M: {resp}"))
+                from tts_atom import speak_response
+                threading.Thread(target=lambda: speak_response(resp), daemon=True).start()
+            else:
+                def do_ai():
+                    try:
+                        from local_engine import get_response_from_atom
+                        reply = get_response_from_atom(text)
+                        QMetaObject.invokeMethod(self.terminal_panel, "append_message",
+                                                Qt.QueuedConnection,
+                                                QtCore.Q_ARG(str, f"🗨️ A.T.O.M: {reply}"))
+                        from tts_atom import speak_response
+                        speak_response(reply)
+                    except Exception as e:
+                        QMetaObject.invokeMethod(self.terminal_panel, "append_message",
+                                                Qt.QueuedConnection,
+                                                QtCore.Q_ARG(str, f"⚠️ LLM error: {e}"))
+                threading.Thread(target=do_ai, daemon=True).start()
+
+            if mode == "oneshot":
+                QMetaObject.invokeMethod(self, "stop_voice_mode", Qt.QueuedConnection)
+
+        voice_atom.start_listening(callback)
+
+        if mode == "continuous":
+            self.silence_timer.start()
+
+    @QtCore.pyqtSlot()
+    def stop_voice_mode(self):
+        import voice_atom
+        if not self.voice_mode:
+            return
         try:
-            self.voice_result.emit(text)
+            voice_atom.stop_listening()
         except Exception:
-            QtCore.QTimer.singleShot(0, lambda: self._on_voice_result(text))
+            pass
 
+        self.voice_mode = None
+        self.silence_timer.stop()
+
+        QMetaObject.invokeMethod(self, "set_mic_state", Qt.QueuedConnection,
+                                QtCore.Q_ARG(object, None))
+        QMetaObject.invokeMethod(self.terminal_panel, "append_message", Qt.QueuedConnection,
+                                QtCore.Q_ARG(str, "Voice mode stopped. Click 🎙️ to start again."))
+
+    @QtCore.pyqtSlot()
+    def _auto_stop_due_to_silence(self):
+        QMetaObject.invokeMethod(self.terminal_panel, "append_message", Qt.QueuedConnection,
+                                QtCore.Q_ARG(str, "⏱️ Stopped listening (30s silence)."))
+        self.stop_voice_mode()
+
+    @QtCore.pyqtSlot(object)
+    def set_mic_state(self, mode):
+        if mode is None:
+            self.mic_button.setText("🎙️ Mic")
+        elif mode == "continuous":
+            self.mic_button.setText("🎧 Listening…")
+        elif mode == "oneshot":
+            self.mic_button.setText("🎤 One-shot…")
+        else:
+            self.mic_button.setText("🎤 Mic")
+
+    # ---------------------------------------------------#
+    #   (Optional legacy path) Voice result callbacks    #
+    # ---------------------------------------------------#
     def _on_voice_result(self, text):
-        voice_atom.stop_listening()
-        self.voice_toggle_btn.setChecked(False)
-
+        # Kept for compatibility with earlier flow; not used by new mic button
         if not text:
             self.terminal_panel.append_message("⚠️ No speech detected.")
             return
 
         self.terminal_panel.append_message(f"User: {text}")
-
-        # Exit commands
-        if text.strip().lower() in ["exit", "quit", "shutdown", "stop", "goodbye"]:
-            self.terminal_panel.append_message("🛑 Shutting down A.T.O.M.")
-            threading.Thread(target=lambda: speak_response("Shutting down A.T.O.M. Goodbye!"), daemon=True).start()
-            QtCore.QTimer.singleShot(0, self.close)
-            return
 
         # First try hardwired commands
         def handle_cmd():
@@ -323,10 +520,9 @@ class AtomUI(QMainWindow):
 
         threading.Thread(target=do_llm, daemon=True).start()
 
-
-#---------------------------------------------------#
-#       Handle user input from Terminal widget       #
-#---------------------------------------------------#
+    # ---------------------------------------------------#
+    #       Handle user input from Terminal widget       #
+    # ---------------------------------------------------#
     def process_user_input(self, text: str):
         """
         Called when the user presses Enter in the terminal.
@@ -373,10 +569,9 @@ class AtomUI(QMainWindow):
 
         threading.Thread(target=do_ai, args=(text,), daemon=True).start()
 
-
-#---------------------------------------------------#
-#         Custom window Fullscreen handler          #
-#---------------------------------------------------#
+    # ---------------------------------------------------#
+    #         Custom window Fullscreen handler           #
+    # ---------------------------------------------------#
     def toggle_maximize_restore(self):
         if self.isFullScreen():
             self.showNormal()
@@ -386,9 +581,9 @@ class AtomUI(QMainWindow):
             self.max_btn.setText("🗗")
             self.max_btn.setToolTip("Restore")
 
-#---------------------------------------------------#
-#        terminal input finder(By chat GPT)         #
-#---------------------------------------------------#
+    # ---------------------------------------------------#
+    #        terminal input finder (By chat GPT)         #
+    # ---------------------------------------------------#
     def _find_input_widget(self, terminal_panel):
         if terminal_panel is None:
             return None
@@ -400,9 +595,10 @@ class AtomUI(QMainWindow):
             return child
         return None
 
-#---------------------------------------------------#
-#            Launcher splash + main ui              #
-#---------------------------------------------------#
+
+# ---------------------------------------------------#
+#            Launcher splash + main ui               #
+# ---------------------------------------------------#
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
@@ -417,7 +613,7 @@ if __name__ == "__main__":
     # Function to launch main UI in main thread
     def launch_main_ui():
         global main_window
-        main_window = AtomUI()  # <-- Keep a reference to pervent gargage collection
+        main_window = AtomUI()  # <-- Keep a reference to prevent garbage collection
 
         # redirect stdout/stderr to terminal panel
         sys.stdout = StreamRedirector(main_window.terminal_panel.append_message)
@@ -426,6 +622,8 @@ if __name__ == "__main__":
         main_window.show()
         splash.close()  # hide splash
         print(" A.T.O.M is online. Terminal ready.")
+
+    from main_atom import stop_ollama   # import cleanup
 
     # Thread-safe signal for launching UI
     class LauncherSignals(QtCore.QObject):
@@ -443,4 +641,3 @@ if __name__ == "__main__":
     threading.Thread(target=init_ollama, daemon=True).start()
 
     sys.exit(app.exec_())
-
