@@ -22,7 +22,7 @@ It leverages local LLM models for conversation, command handling, and intelligen
 ## Screenshots 📸
 
  1. UI
-![A.T.O.M Main UI]("https://github.com/user-attachments/assets/056b8187-fd88-4c9f-a3be-66119a517660")
+![A.T.O.M Main UI](https://github.com/user-attachments/assets/056b8187-fd88-4c9f-a3be-66119a517660)
 
 2. System Monitoring
 
