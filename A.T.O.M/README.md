@@ -31,6 +31,7 @@ It leverages local LLM models for conversation, command handling, and intelligen
 3. Terminal / Chat window and Responses 
 ![Chat Mode](https://github.com/user-attachments/assets/0d64c8d4-6cfe-49b3-8878-a2c5dbb32254)
 ![Chat mode](https://github.com/user-attachments/assets/1be2d4b5-b110-4830-a39b-5a915b93599a)
+![Chat Mode](https://github.com/user-attachments/assets/d7f8f30f-a95a-437a-86c5-b5dfeb8479aa).
 
 ## ▶️ A.T.O.M Features Demo
 
