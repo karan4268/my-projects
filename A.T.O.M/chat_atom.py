@@ -1,36 +1,18 @@
+# A.T.O.M/chat_atom.py
 from PyQt5.QtCore import QThread, pyqtSignal
-import ollama
+from local_engine import get_response_from_atom
 
 class LLMWorker(QThread):
-    new_chunk = pyqtSignal(str)
-    finished = pyqtSignal()
+    finished = pyqtSignal(str)  # emits full response once
 
     def __init__(self, prompt: str, model: str = "phi3", parent=None):
         super().__init__(parent)
         self.prompt = prompt
         self.model = model
-        self._running = True
 
     def run(self):
         try:
-            stream = ollama.chat(
-                model=self.model,
-                messages=[{"role": "user", "content": self.prompt}],
-                stream=True
-            )
-
-            for chunk in stream:
-                if not self._running:
-                    break
-
-                # ✅ Each chunk is already incremental text
-                if "message" in chunk and "content" in chunk["message"]:
-                    self.new_chunk.emit(chunk["message"]["content"])
-
+            response = get_response_from_atom(self.prompt)
+            self.finished.emit(response)
         except Exception as e:
-            self.new_chunk.emit(f"[Error: {e}]")
-        finally:
-            self.finished.emit()
-
-    def stop(self):
-        self._running = False
+            self.finished.emit(f"[Error: {e}]")

@@ -5,8 +5,12 @@ import webbrowser
 import datetime
 import psutil
 import difflib
-import win32com.client
+import win32com.client # For COM interaction with Windows Shell to open apps from windows virtual AppsFolder
+import pythoncom # For COM initialization
 import time
+from PyPDF2 import PdfReader  # for PDF text extraction
+from docx import Document # for DOCX text extraction
+from summarizer import summarize_text # summarize_text function from summarizer.py
 
 # --- Global reference to terminal widget for interactive commands --- #
 terminal_widget_ref = None  # Will be set from UI_ATOM
@@ -30,17 +34,58 @@ def launch_custom_app(name):
 
 
 # --- AppsFolder launcher (for Windows) --- #
-def launch_app_from_appsfolder(app_name):
+def launch_app_from_appsfolder(app_name: str):
     app_name = app_name.lower().strip()
-    shell = win32com.client.Dispatch("Shell.Application")
-    folder = shell.Namespace("shell:AppsFolder")
 
-    for item in folder.Items():
-        name = item.Name.lower()
-        if app_name in name:
-            item.InvokeVerb("open")
-            return f"Launching {item.Name}"
-    return f"App '{app_name}' not found."
+    # Initialize COM for this thread
+    pythoncom.CoInitialize()
+    try:
+        shell = win32com.client.Dispatch("Shell.Application")
+        folder = shell.Namespace("shell:AppsFolder")
+
+        for item in folder.Items():
+            name = item.Name.lower()
+            if app_name in name:
+                item.InvokeVerb("open")
+                return f"Launching {item.Name}"
+
+        return f"App '{app_name}' not found."
+    finally:
+        # Always uninitialize to avoid leaks
+        pythoncom.CoUninitialize()
+
+# summarizer handeler
+def summarize_file(file_path):
+    ext = os.path.splitext(file_path)[1].lower()
+    text = ""
+
+    try:
+        if ext == ".txt":
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                text = f.read()
+
+        elif ext == ".pdf":
+            reader = PdfReader(file_path)
+            for page in reader.pages:
+                text += page.extract_text() or ""
+
+        elif ext == ".docx":
+            doc = Document(file_path)
+            for para in doc.paragraphs:
+                text += para.text + "\n"
+
+        else:
+            return "⚠️ Unsupported file type. Please use .txt, .pdf, or .docx"
+
+        if not text.strip():
+            return "⚠️ No readable text found in the document."
+
+        summary = summarize_text(text)
+        return summary
+
+    except Exception as e:
+        return f"⚠️ Error summarizing file: {e}"
+
 
 
 # --- Hardcoded command and responses --- #
@@ -75,7 +120,6 @@ def info_about_atom():
 def quit():
     time.sleep(0.5)  # Delay for 0.5 seconds before exit
     sys.exit(0)
-
 
 # --- Command dictionary --- #
 command_map = {

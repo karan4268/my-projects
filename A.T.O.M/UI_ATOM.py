@@ -1,17 +1,19 @@
+# A.T.O.M/UI_ATOM.py
+import os
 import sys
 import ctypes
 import threading
 import command
+from pathlib import Path
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMenu
-from PyQt5.QtCore import pyqtSignal, QTimer, QMetaObject, Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMenu, QProgressBar,QFileDialog, QComboBox
+from PyQt5.QtCore import pyqtSignal, QTimer, QMetaObject, Qt, QSettings
 from PyQt5.QtGui import QFont, QMovie
 
 # main functions
 import voice_atom
-from main_atom import start_ollama, stop_ollama
 from tts_atom import speak_response
-from local_engine import get_response_from_atom
+from local_engine import download_model_hf, find_local_gguf, load_model, set_manual_model_path 
 from command import handle_command
 
 # widget panels import
@@ -20,53 +22,169 @@ from panels.TerminalPanel import TerminalChat
 from panels.KeyboardPanel import KeyboardWidget
 from panels.KeyboardPanel import CollapsibleKeyboard  # collapsible toggle for keyboard
 
-# voice logic (non-blocking)
-import voice_atom
-
 # font
 font = QFont("Orbitron")
 
-
-# ---------------------------------------------------#
-#               startup/splash screen                #
-# ---------------------------------------------------#
 class SplashScreen(QWidget):
+    update_status_signal = pyqtSignal(str)
+    update_progress_signal = pyqtSignal(int)
+    ready_to_launch = pyqtSignal()
+
     def __init__(self):
         super().__init__()
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.resize(400, 300)
+        self.resize(500, 380)
         self.apply_blur_effect()
 
-        layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignCenter)
+        # ----------------- Config -----------------
+        config_path = os.path.join(Path.home(), "atom_config.ini")
+        self.settings = QSettings(config_path, QSettings.IniFormat)
+        self.download_path = self.settings.value("model_path", str(Path.home() / "A.T.O.M/models"))
+        self.model_choice = self.settings.value("model_choice", "Phi-3-mini-instruct")
 
+        # ----------------- Layout -----------------
+        self.layout = QVBoxLayout(self)
+        self.layout.setAlignment(Qt.AlignCenter)
+
+        # Title
         self.label_title = QLabel("A.T.O.M")
         self.label_title.setFont(QFont("Orbitron", 30))
         self.label_title.setStyleSheet("color: rgb(77, 255, 219);")
-        layout.addWidget(self.label_title)
+        self.layout.addWidget(self.label_title)
 
+        # Status
         self.label_status = QLabel("Initializing...")
         self.label_status.setFont(QFont("Orbitron", 12))
         self.label_status.setStyleSheet("color: gray;")
-        layout.addWidget(self.label_status)
+        self.layout.addWidget(self.label_status)
 
-        # round loading gif
+        # ----------------- Model Selection -----------------
+        self.label_model = QLabel("Select Model:")
+        self.label_model.setFont(QFont("Orbitron", 10))
+        self.label_model.setStyleSheet("color: rgb(200, 200, 200);")
+        self.layout.addWidget(self.label_model)
+
+        self.model_combo = QComboBox()
+        self.model_combo.addItems(["Phi-3-mini-instruct", "Phi-4-mini-instruct"])
+        self.model_combo.setCurrentText(self.model_choice)
+        self.model_combo.currentTextChanged.connect(self.save_model_choice)
+        self.model_combo.setStyleSheet("""
+            QComboBox { background-color: rgba(77,255,219,0.2); color: rgb(77,255,219); font-weight: bold; padding: 5px; border: 1px solid rgb(77,255,219); border-radius: 5px; }
+            QComboBox QAbstractItemView { background-color: rgba(0,0,0,0.8); selection-background-color: rgb(77,255,219); color: white; }
+        """)
+        self.layout.addWidget(self.model_combo)
+
+        # Loading GIF
         self.loading_gif = QLabel()
         self.loading_gif.setAlignment(Qt.AlignCenter)
-        self.movie = QMovie("A.T.O.M/loading.gif")  # circular oading animation
+        self.movie = QMovie("A.T.O.M/loading.gif")
         self.loading_gif.setMovie(self.movie)
         self.movie.start()
-        layout.addWidget(self.loading_gif, alignment=Qt.AlignCenter)
+        self.layout.addWidget(self.loading_gif, alignment=Qt.AlignCenter)
 
-        self.setLayout(layout)
+        # ----------------- Buttons -----------------
+        self.btn_download = QPushButton("📥 Download Model")
+        self.btn_download.setStyleSheet("background-color: rgba(77,255,219,0.8); font-weight:bold;")
+        self.btn_download.clicked.connect(self.start_download)
+        self.layout.addWidget(self.btn_download)
 
-    def update_status(self, text):
-        self.label_status.setText(text)
+        self.btn_existing = QPushButton("📂 Use Existing Model Folder")
+        self.btn_existing.setStyleSheet("background-color: rgba(77,255,200,0.8); font-weight:bold;")
+        self.btn_existing.clicked.connect(self.choose_existing_folder)
+        self.layout.addWidget(self.btn_existing)
 
-    # ---------------------------------------------------#
-    #           win 11 blur effect for splash            #
-    # ---------------------------------------------------#
+
+        # Progress bar
+        self.progress = QProgressBar()
+        self.progress.setRange(0, 100)
+        self.progress.setValue(0)
+        self.progress.setTextVisible(True)
+        self.progress.setFont(QFont("Orbitron", 8))
+        self.progress.setAlignment(Qt.AlignCenter)
+        self.progress.setStyleSheet("""
+            QProgressBar { background-color: rgba(77,255,219,0.2); border: none; border-radius: 10px; }
+            QProgressBar::chunk { background-color: rgb(77,255,219); border-radius: 10px; }
+            QProgressBar::text { color: black; font-weight: bold; }
+        """)
+        self.layout.addWidget(self.progress)
+
+        # Connect signals
+        self.update_status_signal.connect(self.label_status.setText)
+        self.update_progress_signal.connect(self.progress.setValue)
+
+        self.update_status(f"Using folder: {self.download_path}")
+
+    # ----------------- Helpers -----------------
+    def save_model_choice(self, val):
+        self.model_choice = val
+        self.settings.setValue("model_choice", val)
+
+    def update_status(self, msg):
+        self.update_status_signal.emit(msg)
+
+    def update_progress(self, val):
+        self.update_progress_signal.emit(val)
+
+    # ----------------- Download / Load -----------------
+    def start_download(self):
+        if not self.download_path:
+            folder = QFileDialog.getExistingDirectory(self, "Select Folder for Model Download")
+            if not folder:
+                self.update_status("⚠️ No folder selected.")
+                return
+            self.download_path = folder
+            self.settings.setValue("model_path", folder)
+
+        threading.Thread(target=self.download_thread, daemon=True).start()
+
+    def download_thread(self):
+        success = download_model_hf(
+            self.model_choice,
+            save_dir=self.download_path,
+            status_fn=self.update_status,
+            progress_fn=self.update_progress
+        )
+        if success:
+            self.update_status("✅ Download complete.")
+            self.init_model_thread()
+            self.ready_to_launch.emit()
+
+    # ----------------- Choose Existing Folder -----------------
+    def choose_existing_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, "Select Existing Model Folder")
+        if folder:
+            self.download_path = folder
+            self.settings.setValue("model_path", folder)
+            self.update_status(f"📂 Using folder: {folder}")
+
+            # Set the manual model path dynamically
+            if set_manual_model_path(self.model_choice, folder, status_fn=self.update_status):
+                self.update_status(f"✅ Model path registered for {self.model_choice}")
+
+            self.init_model_thread()
+            self.ready_to_launch.emit()
+
+
+    def init_model_thread(self):
+        threading.Thread(target=self._init_model_thread, daemon=True).start()
+
+    # ----------------- Init Model Thread -----------------
+    def _init_model_thread(self):
+        if not find_local_gguf(self.model_choice, self.download_path):
+            self.update_status("⚠️ Local model not found. Please download or select a folder.")
+            return
+        try:
+            # load_model will now automatically pick the GGUF in the folder
+            load_model(self.model_choice, save_dir=self.download_path, status_fn=self.update_status)
+            self.update_status("✅ Model loaded successfully.")
+        except Exception as e:
+            self.update_status(f"❌ Error loading model: {e}")
+
+
+# ---------------------------------------------------#
+#       win 11 blur effect for splash window           #
+# ---------------------------------------------------#
     def apply_blur_effect(self):
         hwnd = int(self.winId())
 
@@ -92,36 +210,33 @@ class SplashScreen(QWidget):
 
         ctypes.windll.user32.SetWindowCompositionAttribute(hwnd, ctypes.byref(data))
 
-
 # ---------------------------------------------------#
 #      for displaying text in the terminal           #
 # ---------------------------------------------------#
 class StreamRedirector(QtCore.QObject):
-    message_signal = QtCore.pyqtSignal(str)  # safe type for cross-thread signal
+    message_signal = QtCore.pyqtSignal(str)
 
     def __init__(self, write_callback):
         super().__init__()
-        # Connect the signal to the terminal append function
         self.message_signal.connect(write_callback)
 
     def write(self, text):
         if text and str(text).strip():
-            # emit signal to safely update GUI in main thread
             self.message_signal.emit(str(text))
 
     def flush(self):
         pass
 
-
 # ---------------------------------------------------#
-#                      Main UI                        #
+#                      Main UI                       #
 # ---------------------------------------------------#
 class AtomUI(QMainWindow):
-    voice_result = QtCore.pyqtSignal(object)  # receives strings or None
+    voice_result = QtCore.pyqtSignal(object)
 
     def __init__(self):
         super().__init__()
-        self.no_speech_counter = 0 # for no speech detection in continuous mode
+        self.no_speech_counter = 0
+
         self.setGeometry(100, 100, 1200, 800)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinimizeButtonHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
@@ -132,64 +247,34 @@ class AtomUI(QMainWindow):
             pass
 
         self.offset = None
-        self.chat_input = None         # <-- will be set after TerminalChat is built
+        self.chat_input = None
         self.keyboard_panel = None
+        self.voice_mode = None
 
-        # voice-mode state
-        self.voice_mode = None  # "continuous", "oneshot", or None
-
-        # build UI (this sets up self.terminal_panel etc.)
         self.init_ui()
 
-        # 30s silence auto-stop timer (only used in continuous mode)
         self.silence_timer = QTimer(self)
-        self.silence_timer.setInterval(30_000)  #30 sec
+        self.silence_timer.setInterval(30_000)
         self.silence_timer.setSingleShot(True)
         self.silence_timer.timeout.connect(self._auto_stop_due_to_silence)
 
-        # redirect stdout/stderr to terminal panel safely
         try:
             sys.stdout = StreamRedirector(self.terminal_panel.append_message)
             sys.stderr = StreamRedirector(self.terminal_panel.append_message)
         except Exception as e:
             print(f"Redirection failed: {e}")
 
-        # connect legacy voice_result signal if used
         self.voice_result.connect(self._on_voice_result)
 
-    # --------------------------------------------#
-    #           Cleanup on close                  #
-    # --------------------------------------------#
     def closeEvent(self, event):
         try:
             print("Closing A.T.O.M window... shutting down services.")
-
-            # --- Stop Ollama worker ---
-            if hasattr(self, "ollama_worker") and self.ollama_worker:
-                try:
-                    if self.ollama_worker.isRunning():
-                        print("Stopping Ollama worker thread...")
-                        # best-effort stop; OllamaWorker should implement stop()
-                        try:
-                            self.ollama_worker.stop()
-                        except Exception:
-                            pass
-                        self.ollama_worker.wait(1000)  # wait up to 1s
-                except Exception:
-                    pass
-
-            # --- Stop voice listener (best-effort) ---
             try:
                 voice_atom.stop_listening()
             except Exception as e:
                 print(f"⚠️ Voice listener stop error: {e}")
-
-            # --- Optional: stop Ollama server process ---
-            # stop_ollama()
-
         except Exception as e:
             print(f"⚠️ Error during shutdown: {e}")
-
         event.accept()
 
     # ---------------------------------------------------#
@@ -250,10 +335,10 @@ class AtomUI(QMainWindow):
         self.mic_button.setFixedSize(150, 30)  # keep wider button for label
 
         menu = QMenu(self)
-        continuous_action = menu.addAction("🎧 Continuous listening")
-        continuous_action.triggered.connect(lambda: self.start_voice_mode("continuous"))
-        oneshot_action = menu.addAction("🎤 One-shot/Click-to-talk")
-        oneshot_action.triggered.connect(lambda: self.start_voice_mode("oneshot"))
+        continuous_mic_input = menu.addAction("🎧 Continuous listening")
+        continuous_mic_input.triggered.connect(lambda: self.start_voice_mode("continuous"))
+        oneshot_mic_input = menu.addAction("🎤 One-shot/Click-to-talk")
+        oneshot_mic_input.triggered.connect(lambda: self.start_voice_mode("oneshot"))
         self.mic_button.setMenu(menu)
 
         # Clicking the button itself stops current listening session (if any)
@@ -276,7 +361,7 @@ class AtomUI(QMainWindow):
             ''')
             btn.setFont(font)
 
-        # Give mic its own (wider) style
+        # Gives mic (wider) style button
         self.mic_button.setStyleSheet('''
             QPushButton{
                 background-color: rgba(0, 255, 255, 0.1);
@@ -486,14 +571,12 @@ class AtomUI(QMainWindow):
     #   (Optional legacy path) Voice result callbacks    #
     # ---------------------------------------------------#
     def _on_voice_result(self, text):
-        # Kept for compatibility with earlier flow; not used by new mic button
         if not text:
             self.terminal_panel.append_message("⚠️ No speech detected.")
             return
 
         self.terminal_panel.append_message(f"User: {text}")
 
-        # First try hardwired commands
         def handle_cmd():
             try:
                 cmd_resp = handle_command(text)
@@ -509,38 +592,20 @@ class AtomUI(QMainWindow):
         if handle_cmd():
             return
 
-        # Otherwise fallback to LLM
-        def do_llm():
-            try:
-                resp = get_response_from_atom(text)
-                self.terminal_panel.append_message(f"🗨️ A.T.O.M: {resp}")
-                threading.Thread(target=lambda: speak_response(resp), daemon=True).start()
-            except Exception as e:
-                self.terminal_panel.append_message(f"⚠️ LLM error: {e}")
-
-        threading.Thread(target=do_llm, daemon=True).start()
-
     # ---------------------------------------------------#
     #       Handle user input from Terminal widget       #
     # ---------------------------------------------------#
     def process_user_input(self, text: str):
-        """
-        Called when the user presses Enter in the terminal.
-        Decides whether to run a hardwired command or query Ollama.
-        """
         if not text.strip():
             return
 
-        # Always echo user input
         self.terminal_panel.append_message(f"User: {text}")
 
-        # Exit handling
         if text.strip().lower() in ["exit", "quit", "shutdown", "stop"]:
             self.terminal_panel.append_message("🛑 Exiting A.T.O.M.")
             self.close()
             return
 
-        # First try hardcoded commands
         try:
             cmd_resp = handle_command(text)
         except Exception as e:
@@ -549,25 +614,8 @@ class AtomUI(QMainWindow):
 
         if cmd_resp:
             self.terminal_panel.append_message(f"A.T.O.M: {cmd_resp}")
-            try:
-                threading.Thread(target=lambda: speak_response(cmd_resp), daemon=True).start()
-            except Exception:
-                pass
+            threading.Thread(target=lambda: speak_response(cmd_resp), daemon=True).start()
             return
-
-        # Otherwise → fallback to Ollama / local engine
-        def do_ai(q):
-            try:
-                resp = get_response_from_atom(q)
-                QtCore.QTimer.singleShot(0, lambda: self.terminal_panel.append_message(f"🗨️ A.T.O.M:\n\n{resp}"))
-                try:
-                    speak_response(resp)
-                except Exception:
-                    pass
-            except Exception as e:
-                QtCore.QTimer.singleShot(0, lambda: self.terminal_panel.append_message(f"⚠️ LLM error: {e}"))
-
-        threading.Thread(target=do_ai, args=(text,), daemon=True).start()
 
     # ---------------------------------------------------#
     #         Custom window Fullscreen handler           #
@@ -602,42 +650,25 @@ class AtomUI(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    # Show splash screen
+    # --- Splash screen ---
     splash = SplashScreen()
     splash.show()
-    QApplication.processEvents()  # forces GUI update
+    QApplication.processEvents()  # make sure UI updates immediately
 
-    # Global reference for main window to avoid garbage collection
     main_window = None
 
-    # Function to launch main UI in main thread
+    # Function to launch main UI
     def launch_main_ui():
         global main_window
-        main_window = AtomUI()  # <-- Keep a reference to prevent garbage collection
-
-        # redirect stdout/stderr to terminal panel
+        main_window = AtomUI()
+        # Redirect stdout/stderr to terminal
         sys.stdout = StreamRedirector(main_window.terminal_panel.append_message)
         sys.stderr = StreamRedirector(main_window.terminal_panel.append_message)
-
         main_window.show()
-        splash.close()  # hide splash
-        print(" A.T.O.M is online. Terminal ready.")
+        splash.close()
+        print("✅ A.T.O.M is online. Terminal ready.")
 
-    from main_atom import stop_ollama   # import cleanup
-
-    # Thread-safe signal for launching UI
-    class LauncherSignals(QtCore.QObject):
-        done = QtCore.pyqtSignal()
-    signals = LauncherSignals()
-    signals.done.connect(launch_main_ui)
-
-    # Thread for initializing Ollama (only splash updates here)
-    def init_ollama():
-        splash.update_status("Starting Ollama...")
-        start_ollama(print_fn=splash.update_status)  # runs in this thread
-        splash.update_status("Launching UI...")
-        signals.done.emit()  # safely trigger UI in main thread
-
-    threading.Thread(target=init_ollama, daemon=True).start()
+    # Connect the splash's ready_to_launch signal to launch_main_ui
+    splash.ready_to_launch.connect(launch_main_ui)
 
     sys.exit(app.exec_())
