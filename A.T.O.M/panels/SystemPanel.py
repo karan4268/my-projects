@@ -56,6 +56,7 @@ class SystemPanel(QWidget):
         # CPU
         self.cpu_container, self.cpu_circle = self.create_labeled_circle("CPU")
         stats_layout.addWidget(self.cpu_container)
+
         self.cpu_container.setCursor(QtCore.Qt.PointingHandCursor)
         self.cpu_container.mousePressEvent = lambda event: self.waveform.toggle_waveform('cpu')
 
@@ -66,7 +67,19 @@ class SystemPanel(QWidget):
         self.ram_container.mousePressEvent = lambda event: self.waveform.toggle_waveform('ram')
 
         # Battery
-        self.bat_container, self.battery_circle = self.create_labeled_circle("BAT🔋")
+        self.bat_container, self.battery_circle = self.create_labeled_circle("BAT")
+        self.bat_label = self.bat_container.findChild(QLabel)  # Get the label widget
+        battery = psutil.sensors_battery()
+        battery_percent = int(battery.percent) if battery else 0
+        charging = battery.power_plugged if battery else False
+
+        self.battery_circle.setValue(battery_percent)
+
+        # Update label for charging status (so paintEvent knows)
+        if charging:
+            self.battery_circle.label = "🔌"
+        else:
+            self.battery_circle.label = "🔋"
         stats_layout.addWidget(self.bat_container)
 
         for container in (self.cpu_container, self.ram_container, self.bat_container):
@@ -86,8 +99,33 @@ class SystemPanel(QWidget):
         now = datetime.datetime.now()
         self.time_label.setText("{}".format(now.strftime("%a, %d-%b-%Y \n %I:%M:%S %p")))
 
+        # CPU & RAM
         self.cpu_circle.setValue(int(psutil.cpu_percent()))
         self.ram_circle.setValue(int(psutil.virtual_memory().percent))
 
+        # Battery
         battery = psutil.sensors_battery()
-        self.battery_circle.setValue(int(battery.percent) if battery else 0)
+        battery_percent = int(battery.percent) if battery else 0
+        self.battery_circle.setValue(battery_percent)
+
+        # Change battery color based on level
+        if battery_percent < 15:
+            color = "rgb(255, 0, 0)"      # Red
+        elif battery_percent < 30:
+            color = "rgb(255, 165, 0)"    # Orange
+        else:
+            color = "rgb(77, 255, 219)"   # Default cyan
+
+        # Assuming CircularProgress has a setStyleSheet or color method
+        self.battery_circle.setStyleSheet(f"""
+            QProgressBar {{
+                border: none;
+                border-radius: 60px;
+                background: rgba(77, 255, 219, 0.1);
+            }}
+            QProgressBar::chunk {{
+                background: {color};
+                border-radius: 60px;
+            }}
+        """)
+

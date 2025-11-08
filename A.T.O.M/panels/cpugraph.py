@@ -1,4 +1,4 @@
-
+# A.T.O.M/panels/cpugraph.py
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QGraphicsOpacityEffect
 from PyQt5.QtCore import QTimer, Qt, QPropertyAnimation, QRect, QEasingCurve
 from PyQt5.QtGui import QFont

@@ -1,12 +1,10 @@
 # panels/KeyboardPanel.py
 from PyQt5.QtWidgets import (
     QWidget, QPushButton, QGridLayout, QSizePolicy,
-    QLineEdit, QTextEdit, QVBoxLayout, QSlider
+    QLineEdit, QTextEdit, QVBoxLayout, QSlider ,QGraphicsDropShadowEffect
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFrame, QPushButton
-from PyQt5.QtCore import QPropertyAnimation, QSize, QEasingCurve
-from PyQt5.QtGui import QFont
+from PyQt5.QtCore import QPropertyAnimation, QSize, QEasingCurve,Qt
+from PyQt5.QtGui import QFont,QColor
 
 font = QFont("Orbitron")
 class KeyboardWidget(QWidget):
@@ -16,6 +14,11 @@ class KeyboardWidget(QWidget):
         self.shift_enabled = False
         self.buttons = {}
         self.initUI()
+        # Glow effect
+        self.glow = QGraphicsDropShadowEffect()
+        self.glow.setBlurRadius(20)
+        self.glow.setColor(QColor(77, 255, 219))
+        self.glow.setOffset(0)
 
     def initUI(self):
         layout = QGridLayout()
