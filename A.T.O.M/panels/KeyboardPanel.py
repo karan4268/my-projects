@@ -146,4 +146,3 @@ class CollapsibleKeyboard(QWidget):
     def toggle_keyboard(self):
         self.is_collapsed = not self.is_collapsed
         self.keyboard.setVisible(not self.is_collapsed)
-    

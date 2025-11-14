@@ -11,16 +11,23 @@ from panels.cpugraph import Waveform
 
 font = QFont("Orbitron")
 
+
 class SystemPanel(QWidget):
+    BATTERY_SVG_FULL = "A.T.O.M/Batt.svg"
+    BATTERY_SVG_CHARGING = "A.T.O.M/Charger.svg"
+
     def __init__(self):
         super().__init__()
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Tool | Qt.WindowStaysOnTopHint)
+
         self.waveform = Waveform(self.window())
         self.waveform.hide()
-        self.waveform.setStyleSheet("background:transparent; border-radius:5px" )
+        self.waveform.setStyleSheet("background:transparent; border-radius:5px")
+
         self.init_ui()
-    
+
+    # ---------------- Create Circle ---------------- #
     def create_labeled_circle(self, label_text):
         container = QWidget()
         layout = QVBoxLayout(container)
@@ -38,6 +45,7 @@ class SystemPanel(QWidget):
 
         return container, circle
 
+    # ---------------- Initialize UI ---------------- #
     def init_ui(self):
         main_layout = QVBoxLayout()
         main_layout.setAlignment(Qt.AlignTop)
@@ -45,7 +53,9 @@ class SystemPanel(QWidget):
         # Time Label
         self.time_label = QLabel()
         self.time_label.setFont(font)
-        self.time_label.setStyleSheet("color: rgb(77, 255, 219); font-size: 22px; border: none;background-color:transparent;")
+        self.time_label.setStyleSheet(
+            "color: rgb(77, 255, 219); font-size: 22px; border: none; background-color:transparent;"
+        )
         main_layout.addWidget(self.time_label)
 
         # Horizontal layout for progress bars
@@ -56,7 +66,6 @@ class SystemPanel(QWidget):
         # CPU
         self.cpu_container, self.cpu_circle = self.create_labeled_circle("CPU")
         stats_layout.addWidget(self.cpu_container)
-
         self.cpu_container.setCursor(QtCore.Qt.PointingHandCursor)
         self.cpu_container.mousePressEvent = lambda event: self.waveform.toggle_waveform('cpu')
 
@@ -68,64 +77,50 @@ class SystemPanel(QWidget):
 
         # Battery
         self.bat_container, self.battery_circle = self.create_labeled_circle("BAT")
-        self.bat_label = self.bat_container.findChild(QLabel)  # Get the label widget
-        battery = psutil.sensors_battery()
-        battery_percent = int(battery.percent) if battery else 0
-        charging = battery.power_plugged if battery else False
-
-        self.battery_circle.setValue(battery_percent)
-
-        # Update label for charging status (so paintEvent knows)
-        if charging:
-            self.battery_circle.label = "🔌"
-        else:
-            self.battery_circle.label = "🔋"
+        self.battery_circle.is_battery = True # Flag for battery to update charging and arc color in circles.py
         stats_layout.addWidget(self.bat_container)
 
+        # Style containers
         for container in (self.cpu_container, self.ram_container, self.bat_container):
-            container.setStyleSheet("background:none;border-radius:25px;border:1px solid rgba(77, 255, 219, 0.2)")
+            container.setStyleSheet(
+                "background:none;border-radius:25px;border:1px solid rgba(77, 255, 219, 0.2)"
+            )
 
         main_layout.addLayout(stats_layout)
         self.setLayout(main_layout)
 
-        # Timer for stats
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_stats)
-        self.timer.start(1000)
+        # ---------------- Timers ---------------- #
+        self.stats_timer = QTimer()
+        self.stats_timer.timeout.connect(self.update_stats)
+        self.stats_timer.start(1000)
 
+        self.battery_timer = QTimer(self)
+        self.battery_timer.timeout.connect(self.update_battery_status)
+        self.battery_timer.start(500)  # Faster battery update for SVG
+
+        # Initial update
         self.update_stats()
+        self.update_battery_status()
 
+    # ---------------- Update CPU/RAM/Time ---------------- #
     def update_stats(self):
         now = datetime.datetime.now()
-        self.time_label.setText("{}".format(now.strftime("%a, %d-%b-%Y \n %I:%M:%S %p")))
+        self.time_label.setText(now.strftime("%a, %d-%b-%Y \n %I:%M:%S %p"))
 
-        # CPU & RAM
+        # CPU & RAM values
         self.cpu_circle.setValue(int(psutil.cpu_percent()))
         self.ram_circle.setValue(int(psutil.virtual_memory().percent))
 
-        # Battery
+    # ---------------- Update Battery Value & SVG ---------------- #
+    def update_battery_status(self):
         battery = psutil.sensors_battery()
-        battery_percent = int(battery.percent) if battery else 0
+        if not battery:
+            return
+
+        battery_percent = int(battery.percent)
         self.battery_circle.setValue(battery_percent)
 
-        # Change battery color based on level
-        if battery_percent < 15:
-            color = "rgb(255, 0, 0)"      # Red
-        elif battery_percent < 30:
-            color = "rgb(255, 165, 0)"    # Orange
+        if battery.power_plugged:
+            self.battery_circle.set_svg_icon(self.BATTERY_SVG_CHARGING)
         else:
-            color = "rgb(77, 255, 219)"   # Default cyan
-
-        # Assuming CircularProgress has a setStyleSheet or color method
-        self.battery_circle.setStyleSheet(f"""
-            QProgressBar {{
-                border: none;
-                border-radius: 60px;
-                background: rgba(77, 255, 219, 0.1);
-            }}
-            QProgressBar::chunk {{
-                background: {color};
-                border-radius: 60px;
-            }}
-        """)
-
+            self.battery_circle.set_svg_icon(self.BATTERY_SVG_FULL)
