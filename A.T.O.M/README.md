@@ -43,16 +43,16 @@ Below are some Screenshots of A.T.O.M During development Phase
 ## 🔶 Terminal / Chat window and Responses
 
 ![Chat Mode](https://github.com/user-attachments/assets/4a370a32-b28d-4b91-825c-7651a07c389b)
-![Chat Mode](https://github.com/user-attachments/assets/d7f8f30f-a95a-437a-86c5-b5dfeb8479aa).
+![Chat Mode](https://github.com/user-attachments/assets/d7f8f30f-a95a-437a-86c5-b5dfeb8479aa)
 
 
 
-## ▶️ A.T.O.M Features Demo
+# ▶️ A.T.O.M Features Demo
 
 [![Watch the video](./Screenshot%20(64).png qqeqe)](https://youtu.be/abc123XYZ        qeqeqe)
 
 
-##  ♦️Installation
+#  ♦️Installation
 
 1. **Clone the repository**:
 
@@ -99,7 +99,7 @@ Improve the UI/UX
 
 Add new voice commands
 
-Optimize CPU/RAM monitoring
+Optimize System monitoring
 
 Add support for additional local LLMs
 
