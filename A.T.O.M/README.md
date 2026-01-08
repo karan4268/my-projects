@@ -22,9 +22,10 @@ It leverages local LLM models for conversation, command handling, and intelligen
 ## Screenshots 📸
 
  1. UI
+![Splash/ Setup Screen] ()
 ![A.T.O.M Main UI](https://github.com/user-attachments/assets/056b8187-fd88-4c9f-a3be-66119a517660)
 
-2. System Monitoring
+3. System Monitoring
 
 ![CPU & RAM Panel](https://github.com/user-attachments/assets/ac377cfa-d6e2-43a8-bad6-86eb628339fb)
 
