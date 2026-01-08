@@ -6,7 +6,7 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 ---
 
-## Features ✨
+# Features ✨
 
 - **Voice Interaction**: Speak naturally to A.T.O.M and receive intelligent responses.  
 - **Local LLM Integration**: Uses local **Phi-3** (or other LLM models can be used) for conversation and reasoning.  
@@ -19,7 +19,7 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 ---
 
-## Screenshots 📸
+# Screenshots 📸
 ## 🔶Splash Screen
                                                                                                                         
 ![Image](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
@@ -30,10 +30,10 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 ## 🔶System Monitoring
 
-# 🔸CPU Panel
+🔸CPU Panel
 ![CPU Pannel](https://github.com/user-attachments/assets/eb165125-125a-4ec4-913f-8e1669e4ad0d)
 
-# 🔸RAM Panel
+🔸RAM Panel
 ![RAM Panel](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
 
 
