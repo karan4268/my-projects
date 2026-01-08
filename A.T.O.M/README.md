@@ -21,9 +21,6 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 ## Screenshots 📸
 
-
-
-1. SpLash Screen
 ![Splash Screen](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
 
 2. Main UI
