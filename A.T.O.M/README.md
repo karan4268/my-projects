@@ -22,12 +22,17 @@ It leverages local LLM models for conversation, command handling, and intelligen
 ## Screenshots 📸
 
  1. UI
+a) Splash Screen
 ![Splash / Setup Screen](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
+
+b) Main UI
 ![A.T.O.M Main UI](https://github.com/user-attachments/assets/056b8187-fd88-4c9f-a3be-66119a517660)
 ![A.T.O.M Main UI](https://github.com/user-attachments/assets/39a61f7c-e2dc-44bd-968c-9f8927b529ab)
 
 3. System Monitoring
-
+![Image](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
+![Image](https://github.com/user-attachments/assets/eb165125-125a-4ec4-913f-8e1669e4ad0d)
+![Image](https://github.com/user-attachments/assets/97e356d5-02dd-4be4-8787-6e3977059890)
 ![CPU & RAM Panel](https://github.com/user-attachments/assets/ac377cfa-d6e2-43a8-bad6-86eb628339fb)
 
 3. Terminal / Chat window and Responses 
@@ -37,11 +42,6 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 
 <img width="1919" height="1079" alt="Image" src="https://github.com/user-attachments/assets/0e4ef541-543b-4b7c-a117-f603d722aad0" />
-
-![Image](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
-![Image](https://github.com/user-attachments/assets/eb165125-125a-4ec4-913f-8e1669e4ad0d)
-![Image](https://github.com/user-attachments/assets/97e356d5-02dd-4be4-8787-6e3977059890)
-
 <img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/4a370a32-b28d-4b91-825c-7651a07c389b" />
 
 
