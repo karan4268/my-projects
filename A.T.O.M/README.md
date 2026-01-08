@@ -20,6 +20,9 @@ It leverages local LLM models for conversation, command handling, and intelligen
 ---
 
 # Screenshots 📸
+Below are some Screenshots of A.T.O.M During development Phase
+
+
 ## 🔶Splash Screen
                                                                                                                         
 ![Image](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
