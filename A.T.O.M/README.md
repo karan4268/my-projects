@@ -21,7 +21,8 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 ## Screenshots 📸
 🔶Splash Screen
-                ![Image](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
+                                                                                                                        
+![Image](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
 
 🔶Main UI
 ![A.T.O.M Main UI](https://github.com/user-attachments/assets/39a61f7c-e2dc-44bd-968c-9f8927b529ab)
@@ -37,7 +38,7 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 
 🔶 Terminal / Chat window and Responses
-![Chat Mode](https://github.com/user-attachments/assets/0e4ef541-543b-4b7c-a117-f603d722aad0)
+
 ![Chat Mode](https://github.com/user-attachments/assets/4a370a32-b28d-4b91-825c-7651a07c389b)
 ![Chat Mode](https://github.com/user-attachments/assets/d7f8f30f-a95a-437a-86c5-b5dfeb8479aa).
 
