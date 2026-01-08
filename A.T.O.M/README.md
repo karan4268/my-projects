@@ -22,8 +22,9 @@ It leverages local LLM models for conversation, command handling, and intelligen
 ## Screenshots 📸
 
  1. UI
-![Splash/ Setup Screen] (<img width="1919" height="1079" alt="Image" src="https://github.com/user-attachments/assets/39a61f7c-e2dc-44bd-968c-9f8927b529ab" />)
+![Splash/ Setup Screen]("https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e")
 ![A.T.O.M Main UI](https://github.com/user-attachments/assets/056b8187-fd88-4c9f-a3be-66119a517660)
+("https://github.com/user-attachments/assets/39a61f7c-e2dc-44bd-968c-9f8927b529ab")
 
 3. System Monitoring
 
@@ -35,7 +36,6 @@ It leverages local LLM models for conversation, command handling, and intelligen
 ![Chat Mode](https://github.com/user-attachments/assets/d7f8f30f-a95a-437a-86c5-b5dfeb8479aa).
 
 
-<img width="719" height="445" alt="Image" src="https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e" />
 <img width="1919" height="1079" alt="Image" src="https://github.com/user-attachments/assets/0e4ef541-543b-4b7c-a117-f603d722aad0" />
 
 ![Image](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
