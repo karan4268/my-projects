@@ -30,10 +30,10 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 ## 🔶System Monitoring
 
-## 🔸CPU Panel
+# 🔸CPU Panel
 ![CPU Pannel](https://github.com/user-attachments/assets/eb165125-125a-4ec4-913f-8e1669e4ad0d)
 
-## 🔸RAM Panel
+# 🔸RAM Panel
 ![RAM Panel](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
 
 
