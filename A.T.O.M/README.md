@@ -21,7 +21,7 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 ## Screenshots 📸
 🔶Splash Screen
-![Image](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
+                ![Image](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
 
 🔶Main UI
 ![A.T.O.M Main UI](https://github.com/user-attachments/assets/39a61f7c-e2dc-44bd-968c-9f8927b529ab)
@@ -30,19 +30,16 @@ It leverages local LLM models for conversation, command handling, and intelligen
 🔶System Monitoring
 
 🔸CPU Panel
-![CPU Pannel](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
+![CPU Pannel](https://github.com/user-attachments/assets/eb165125-125a-4ec4-913f-8e1669e4ad0d)
 
 🔸RAM Panel
-![RAM Panel](https://github.com/user-attachments/assets/eb165125-125a-4ec4-913f-8e1669e4ad0d)
+![RAM Panel](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
 
 
 🔶 Terminal / Chat window and Responses
 ![Chat Mode](https://github.com/user-attachments/assets/0e4ef541-543b-4b7c-a117-f603d722aad0)
 ![Chat Mode](https://github.com/user-attachments/assets/4a370a32-b28d-4b91-825c-7651a07c389b)
 ![Chat Mode](https://github.com/user-attachments/assets/d7f8f30f-a95a-437a-86c5-b5dfeb8479aa).
-![Chat Mode](https://github.com/user-attachments/assets/0d64c8d4-6cfe-49b3-8878-a2c5dbb32254)
-![Chat mode](https://github.com/user-attachments/assets/1be2d4b5-b110-4830-a39b-5a915b93599a)
-
 
 
 
