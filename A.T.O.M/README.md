@@ -20,20 +20,19 @@ It leverages local LLM models for conversation, command handling, and intelligen
 ---
 
 ## Screenshots 📸
-
-![Splash Screen](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
+1. Splash Screen
+![Image](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
 
 2. Main UI
-![A.T.O.M Main UI](https://github.com/user-attachments/assets/056b8187-fd88-4c9f-a3be-66119a517660)
 ![A.T.O.M Main UI](https://github.com/user-attachments/assets/39a61f7c-e2dc-44bd-968c-9f8927b529ab)
-
-3. System Monitoring
-![Image](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
-![Image](https://github.com/user-attachments/assets/eb165125-125a-4ec4-913f-8e1669e4ad0d)
 ![Image](https://github.com/user-attachments/assets/97e356d5-02dd-4be4-8787-6e3977059890)
-![CPU & RAM Panel](https://github.com/user-attachments/assets/ac377cfa-d6e2-43a8-bad6-86eb628339fb)
 
-4. Terminal / Chat window and Responses 
+4. System Monitoring
+![CPU Pannel](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
+![RAM Panel](https://github.com/user-attachments/assets/eb165125-125a-4ec4-913f-8e1669e4ad0d)
+
+
+5. Terminal / Chat window and Responses 
 ![Chat Mode](https://github.com/user-attachments/assets/0d64c8d4-6cfe-49b3-8878-a2c5dbb32254)
 ![Chat mode](https://github.com/user-attachments/assets/1be2d4b5-b110-4830-a39b-5a915b93599a)
 ![Chat Mode](https://github.com/user-attachments/assets/d7f8f30f-a95a-437a-86c5-b5dfeb8479aa).
