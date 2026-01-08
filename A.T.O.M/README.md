@@ -23,8 +23,7 @@ It leverages local LLM models for conversation, command handling, and intelligen
 
 1. UI
 
-a) Splash Screen
-![Splash / Setup Screen](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
+a) [Splash Screen](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
 
 b) Main UI
 ![A.T.O.M Main UI](https://github.com/user-attachments/assets/056b8187-fd88-4c9f-a3be-66119a517660)
