@@ -1,20 +1,20 @@
 # A.T.O.M – ADVANCED TASK ORIENTED MODEL 
 
 A.T.O.M (ADVANCED TASK ORIENTED MODEL) is a local AI assistant designed to run fully offline on Windows PCs. 
-Inspired by futuristic aesthetics (Inspired By TRON), A.T.O.M combines voice recognition, speech synthesis, and command execution with a visually stunning interface.
-It leverages local LLM models for conversation, command handling, and intelligent responses without requiring cloud services.
-
+Inspired by futuristic aesthetics of TRON, A.T.O.M combines voice recognition, speech synthesis, and command execution with a visually stunning interface.
+It leverages local LLM models for conversation, command handling, and intelligent responses without requiring any connections to cloud services.
+**NOTE:-**This Project is Not yet finished and I am working on it in my Free time.Some Features are still Under work.
 ---
 
 # Features ✨
 
 - **Voice Interaction**: Speak naturally to A.T.O.M and receive intelligent responses.  
-- **Local LLM Integration**: Uses local **Phi-3** (or other LLM models can be used) for conversation and reasoning.  
+- **Local LLM Integration**: Uses local **Phi-3/4** (or other LLM models can be used) for conversation and reasoning.  
 - **Command Execution**: Execute system commands, open applications, and automate tasks.  
-- **UI**: Futuristic neon and glassmorphic interface with animated circular progress bars.  
-- **Resource Monitoring**: Real-time CPU and RAM waveform visualization with collapsible panels.  
+- **UI**: Futuristic neon and glass like interface with animated circular progress bars made using PyQt.  
+- **Resource Monitoring**: Real-time CPU and RAM Monitoring with visualization and panels.  
 - **Chat Mode**: Terminal-style chat panel for keyboard interaction.  
-- **Fully Offline**: No data leaves your system—privacy-first design.  
+- **Fully Offline**: No data leaves your system and its a privacy-first design.  
 - **Customizable**: Easily change themes, layouts, and LLM parameters.
 
 ---
@@ -49,7 +49,7 @@ Below are some Screenshots of A.T.O.M During development Phase
 
 # ▶️ A.T.O.M Features Demo
 
-[![Watch the video](./Screenshot%20(64).png qqeqe)](https://youtu.be/abc123XYZ        qeqeqe)
+[![Watch the video](./Screenshot%20(64).png qqeqe)](https://youtu.be/abc123XYZ qeqeqe) Video is currently down :(
 
 
 #  ♦️Installation
@@ -57,7 +57,7 @@ Below are some Screenshots of A.T.O.M During development Phase
 1. **Clone the repository**:
 
 ```bash
-git clone https://github.com/yourusername/ATOM.git
+git clone https://github.com/karan4268/ATOM.git
 cd ATOM
 ```
 2. **Create a virtual environment**:
@@ -71,6 +71,8 @@ source atom-env/Scripts/activate   # for Windows
 pip install -r requirements.txt
 ```
 
+4.**Run**
+after installing the requirements, Run the UI_atom.py from the terminal or any IDE.
 ## ♦️Usage
 
 Voice Command: Click the microphone button and speak.
