@@ -1,7 +1,7 @@
 # A.T.O.M – ADVANCED TASK ORIENTED MODEL 
 
 A.T.O.M (ADVANCED TASK ORIENTED MODEL) is a local AI assistant designed to run fully offline on Windows PCs. 
-Inspired by futuristic aesthetics of TRON, A.T.O.M combines voice recognition, speech synthesis, and command execution with a visually stunning interface.
+Inspired by futuristic aesthetics, A.T.O.M combines voice recognition, speech synthesis, and command execution with a visually stunning interface.
 It leverages local LLM models for conversation, command handling, and intelligent responses without requiring any connections to cloud services.
 
 Note:- This Project is Not yet finished and I am working on it in my Free time. Some Features are still under work.
