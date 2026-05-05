@@ -1,0 +1,40 @@
+# A.T.O.M requirements.txt
+# Install with: pip install -r requirements.txt
+# Note: Some packages require Visual C++ build tools on Windows.
+
+# Core UI
+PyQt5>=5.15
+PyQt5-sip
+pyqtgraph>=0.13
+
+# Local LLM
+ctransformers>=0.2.27
+torch>=2.0                    # CPU-only build: pip install torch --index-url https://download.pytorch.org/whl/cpu
+huggingface_hub>=0.20
+
+# Voice — Speech recognition
+SpeechRecognition>=3.10
+pyaudio>=0.2.13               # On Windows: pip install pipwin && pipwin install pyaudio
+
+# TTS — Coqui TTS
+TTS>=0.22                     # Installs Coqui TTS engine (multi-speaker VCTK model)
+pydub>=0.25
+# pydub requires ffmpeg on PATH: https://ffmpeg.org/download.html
+
+# System monitoring
+psutil>=5.9
+pynvml>=11.5                  # NVIDIA GPU stats (optional but recommended)
+
+# File handling
+PyPDF2>=3.0
+python-docx>=1.0
+
+# Web search (agent tool)
+requests>=2.31
+duckduckgo-search>=5.0        # Optional but gives richer results than Instant API
+
+# Windows-only (COM / app launching)
+pywin32>=306                  # provides win32com, pythoncom — Windows only
+
+# HTTP (model download)
+# requests already listed above

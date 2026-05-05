@@ -1,0 +1,216 @@
+
+<style>
+  body { margin: 0; font-family: Consolas, monospace; }
+  .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px; background: #111; }
+  .panel { border-radius: 8px; overflow: hidden; border: 1px solid #333; }
+  .panel-label { font-family: sans-serif; font-size: 11px; font-weight: 600; padding: 6px 10px; letter-spacing: 0.05em; }
+  .broken-label { background: #3a1a1a; color: #ff8888; }
+  .fixed-label  { background: #0e2a1a; color: #4dffd7; }
+  .terminal-bg  { background: #0a0e14; padding: 12px; min-height: 340px; display: flex; flex-direction: column; gap: 10px; }
+
+  /* USER BUBBLE — broken: no real bubble shape, border bleeds into bg */
+  .user-broken {
+    text-align: right;
+  }
+  .user-broken span {
+    color: rgb(50,255,219);
+    padding: 6px 10px;
+    border-radius: 12px;
+    display: inline-block;
+    max-width: 70%;
+  }
+
+  /* USER BUBBLE — fixed: actual bubble with background */
+  .user-fixed {
+    text-align: right;
+  }
+  .user-fixed span {
+    color: #0a0e14;
+    background: rgb(50,255,219);
+    padding: 6px 12px;
+    border-radius: 12px 12px 2px 12px;
+    display: inline-block;
+    max-width: 70%;
+    font-size: 9pt;
+  }
+
+  /* ATOM RESPONSE — broken: no left border visible against dark bg, flat */
+  .atom-broken {
+    text-align: left;
+  }
+  .atom-broken .label { color: #00ffc3; font-size: 9pt; font-family: Orbitron, sans-serif; margin-bottom: 3px; }
+  .atom-broken .body {
+    color: #c9d1d9;
+    font-size: 9pt;
+    border-left: 2px solid rgba(77,255,219,0.3);
+    padding-left: 8px;
+    margin-top: 4px;
+  }
+
+  /* ATOM RESPONSE — fixed: visible bg card, proper border */
+  .atom-fixed {
+    text-align: left;
+  }
+  .atom-fixed .label { color: #4dffd7; font-size: 8pt; font-family: sans-serif; font-weight: 600; margin-bottom: 4px; letter-spacing: 0.05em; }
+  .atom-fixed .body {
+    background: rgba(77,255,219,0.05);
+    border: 1px solid rgba(77,255,219,0.15);
+    border-left: 2px solid rgba(77,255,219,0.6);
+    border-radius: 0 6px 6px 0;
+    color: #c9d1d9;
+    font-size: 9pt;
+    padding: 7px 10px;
+    margin-top: 2px;
+  }
+
+  /* CODE BLOCK — broken: no lang label colour match, copy not visible */
+  .code-broken {
+    margin: 4px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #30a0c0;
+  }
+  .code-broken .header {
+    background: rgba(0,0,0,0.5);
+    padding: 3px 10px;
+    border-bottom: 1px solid #30a0c0;
+    display: flex; justify-content: space-between;
+  }
+  .code-broken .lang { color: #30a0c0; font-size: 8pt; }
+  .code-broken pre {
+    background: #0d1117; color: #c9d1d9; font-size: 9pt;
+    padding: 8px 12px; margin: 0;
+  }
+
+  /* CODE BLOCK — fixed: copy button visible in header */
+  .code-fixed {
+    margin: 4px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #3d9be9;
+  }
+  .code-fixed .header {
+    background: #161b22;
+    padding: 4px 10px;
+    border-bottom: 1px solid rgba(61,155,233,0.4);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .code-fixed .lang { color: #3d9be9; font-size: 8pt; font-family: sans-serif; font-weight: 600; }
+  .code-fixed .copy-btn { color: rgba(77,255,219,0.6); font-size: 8pt; cursor: pointer; font-family: sans-serif; }
+  .code-fixed pre {
+    background: #0d1117; color: #c9d1d9; font-size: 9pt;
+    padding: 8px 12px; margin: 0;
+  }
+
+  /* COPY LINK — broken: right-aligned separate div, easy to miss */
+  .copy-broken { text-align: right; margin-right: 10px; color: rgba(77,255,219,0.5); font-size: 8pt; }
+
+  /* INPUT ROW */
+  .input-row { display: flex; gap: 6px; align-items: center; margin-top: auto; padding-top: 8px; border-top: 1px solid rgba(77,255,219,0.1); }
+  .plus-broken {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(0,0,0,0.1); border: 1px solid rgb(77,255,215);
+    color: rgb(77,255,219); font-size: 20px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .plus-fixed {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: rgba(77,255,219,0.08); border: 1px solid rgba(77,255,219,0.35);
+    color: #4dffd7; font-size: 16px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .input-broken {
+    flex: 1; background: rgba(0,0,0,0.25); border: 1px solid rgba(77,255,219,0.4);
+    border-radius: 6px; color: #e0ffe0; font-size: 9pt; padding: 6px 8px; font-family: Consolas;
+    height: 32px;
+  }
+  .input-fixed {
+    flex: 1; background: rgba(0,0,0,0.4); border: 1px solid rgba(77,255,219,0.25);
+    border-radius: 6px; color: #c9d1d9; font-size: 9pt; padding: 6px 8px; font-family: Consolas;
+    height: 32px;
+  }
+  .send-btn {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: rgba(77,255,219,0.12); border: 1px solid rgba(77,255,219,0.35);
+    color: #4dffd7; font-size: 14px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .kw { color: #00eaff; font-weight: bold; }
+  .fn { color: #d2a679; }
+  .st { color: #a8d8a8; }
+  .cm { color: #6aff6a; }
+  .nm { color: #f0c080; }
+</style>
+
+<div class="wrap">
+  <div class="panel">
+    <div class="panel-label broken-label">CURRENT — broken</div>
+    <div class="terminal-bg">
+
+      <div class="user-broken">
+        <span><b>User:</b> write this in python</span>
+      </div>
+
+      <div class="atom-broken">
+        <div class="label"><b>A.T.O.M</b></div>
+        <div class="body">Here is the Python version:</div>
+      </div>
+
+      <div class="code-broken">
+        <div class="header">
+          <span class="lang">PYTHON</span>
+        </div>
+        <pre><span class="kw">def</span> <span class="fn">sieve</span>(n):
+    prime = [<span class="kw">True</span>] * (n+<span class="nm">1</span>)
+    <span class="kw">for</span> p <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">2</span>, n):
+        <span class="cm"># mark multiples</span>
+        <span class="kw">if</span> prime[p]:
+            prime[p*p::p] = [<span class="kw">False</span>]*...</pre>
+      </div>
+
+      <div class="copy-broken">⎘ copy</div>
+
+      <div class="input-row">
+        <div class="plus-broken">+</div>
+        <input class="input-broken" placeholder="Type here and press Enter…" readonly />
+      </div>
+
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label fixed-label">FIXED — consistent theme</div>
+    <div class="terminal-bg">
+
+      <div class="user-fixed">
+        <span><b>User:</b> write this in python</span>
+      </div>
+
+      <div class="atom-fixed">
+        <div class="label">A.T.O.M</div>
+        <div class="body">Here is the Python version:</div>
+      </div>
+
+      <div class="code-fixed">
+        <div class="header">
+          <span class="lang">PYTHON</span>
+          <span class="copy-btn">⎘ copy</span>
+        </div>
+        <pre><span class="kw">def</span> <span class="fn">sieve</span>(n):
+    prime = [<span class="kw">True</span>] * (n+<span class="nm">1</span>)
+    <span class="kw">for</span> p <span class="kw">in</span> <span class="nm">range</span>(<span class="nm">2</span>, n):
+        <span class="cm"># mark multiples</span>
+        <span class="kw">if</span> prime[p]:
+            prime[p*p::p] = [<span class="kw">False</span>]*...</pre>
+      </div>
+
+      <div class="input-row">
+        <div class="plus-fixed">+</div>
+        <input class="input-fixed" placeholder="Type here and press Enter…" readonly />
+        <div class="send-btn">↑</div>
+      </div>
+
+    </div>
+  </div>
+</div>
