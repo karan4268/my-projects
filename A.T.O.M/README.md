@@ -10,7 +10,7 @@ It leverages **two local LLM models** for planning, reasoning, and conversation 
 
 # What's New in v3 ✨
 
-- **Dual-Model Architecture** — Mistral-7B handles agentic planning; Phi-3/4 handles conversation and synthesis
+- **Dual-Model Architecture** — Mistral-7B handles agentic planning; Phi-3 handles conversation and synthesis
 - **ReAct Agent Loop** — A full Thought → Action → Observation loop with up to 4 steps per query
 - **7 Built-in Tools** — web search, file I/O, code review, shell, calculator, system commands, and memory
 - **Keyword Router** — fast pre-filter that maps your query to the right tool before hitting the LLM
