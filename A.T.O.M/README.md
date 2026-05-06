@@ -44,7 +44,7 @@ It leverages **two local LLM models** for planning, reasoning, and conversation 
 
 ---
 
-# Architecture 🧠
+# Architecture Overview 
 
 ```
 User Query
@@ -60,12 +60,13 @@ ReAct Loop  (up to 4 steps)
   Thought → ACTION → OBSERVATION → repeat
     │
     ▼
-Phi-3/4 (CPU)  ──  Synthesise final answer
+Synthesise final answer
 ```
 
 **Why two models?**
-Phi-3/4 quants are fast and great at conversation but unreliable at structured JSON tool calls inside a loop.
+Phi-3 quants are fast and great at conversation but unreliable at structured JSON tool calls inside a loop.
 Mistral-7B-Instruct-v0.3 Q4_K_M (~4 GB) fits in 6–8 GB VRAM and produces stable tool-call JSON.
+you can use any agentic model instead of Mistral
 Phi handles everything that doesn't need the loop, keeping GPU memory free.
 
 ---
@@ -92,9 +93,8 @@ Phi handles everything that doesn't need the loop, keeping GPU memory free.
 ![RAM Panel](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
 
 ## 🔶 Terminal / Chat Window and Responses
-![New Agentic Loop](https://github.com/user-attachments/assets/008558a7-f2bf-4978-8b27-2e914c18c6ec)
-![](https://github.com/user-attachments/assets/398b328f-9b5c-433d-9da1-899b81536998)
-
+![New Agentic Loop](https://github.com/user-attachments/assets/e891160f-a261-48c2-ba82-71be92af9cd8)
+![](https://github.com/user-attachments/assets/008558a7-f2bf-4978-8b27-2e914c18c6ec)
 ![light coding](https://github.com/user-attachments/assets/398b328f-9b5c-433d-9da1-899b81536998)
 ![Chat Mode](https://github.com/user-attachments/assets/f548b9f4-d3a7-4bf3-915c-69634d6a5b66)
 ![Chat Mode](https://github.com/user-attachments/assets/67ca33d0-cbc9-46a8-9217-13e07d8861a9)
@@ -112,7 +112,10 @@ Phi handles everything that doesn't need the loop, keeping GPU memory free.
 ## 1. Prerequisites
 
 - Python 3.10+
-- CUDA-capable GPU recommended (6–8 GB VRAM for Mistral on GPU)
+- CUDA-capable GPU recommended (4GB minimum and 6–8 GB VRAM Recommend for Mistral on GPU)
+- note:-
+- change model Token and context values in local_engine.py and Agent.py if your GPU has more VRAM.
+- You can also run Phi on GPU but its not stable due to ctransformers threading issues with two GGUF models on windows.
 - [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) built with CUDA support
 
 ## 2. Clone the repository
