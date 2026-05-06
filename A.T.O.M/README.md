@@ -74,12 +74,12 @@ Phi handles everything that doesn't need the loop, keeping GPU memory free.
 
 ## 🔶 Splash Screen
 
-![Splash Screen](https://github.com/user-attachments/assets/b19c057d-22ac-4999-84d4-c28056a10c9e)
+![Splash Screen](https://github.com/user-attachments/assets/9e0b61d6-be82-4d8e-ac17-5ca4f588f970)
 
 ## 🔶 Main UI
 
-![A.T.O.M Main UI](https://github.com/user-attachments/assets/39a61f7c-e2dc-44bd-968c-9f8927b529ab)
-![New UI](https://github.com/user-attachments/assets/97e356d5-02dd-4be4-8787-6e3977059890)
+![A.T.O.M Main UI](https://github.com/user-attachments/assets/0af75a10-223e-4135-a613-b1ee5e6955e3)
+![New Settings panel](https://github.com/user-attachments/assets/6f4a453f-5efc-4de7-a758-a59105bd8a2c)
 
 ## 🔶 System Monitoring
 
@@ -92,9 +92,12 @@ Phi handles everything that doesn't need the loop, keeping GPU memory free.
 ![RAM Panel](https://github.com/user-attachments/assets/d76412fa-b607-44ee-9ef4-0f7bd28dc975)
 
 ## 🔶 Terminal / Chat Window and Responses
+![New Agentic Loop](https://github.com/user-attachments/assets/008558a7-f2bf-4978-8b27-2e914c18c6ec)
+![](https://github.com/user-attachments/assets/398b328f-9b5c-433d-9da1-899b81536998)
 
-![Chat Mode](https://github.com/user-attachments/assets/4a370a32-b28d-4b91-825c-7651a07c389b)
-![Chat Mode](https://github.com/user-attachments/assets/d7f8f30f-a95a-437a-86c5-b5dfeb8479aa)
+![light coding](https://github.com/user-attachments/assets/398b328f-9b5c-433d-9da1-899b81536998)
+![Chat Mode](https://github.com/user-attachments/assets/f548b9f4-d3a7-4bf3-915c-69634d6a5b66)
+![Chat Mode](https://github.com/user-attachments/assets/67ca33d0-cbc9-46a8-9217-13e07d8861a9)
 
 ---
 
