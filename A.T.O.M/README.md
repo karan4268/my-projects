@@ -1,6 +1,6 @@
-# A.T.O.M – ADVANCED TASK ORIENTED MODEL
+# A.T.O.M – Advanced Transformer Orchestration Manager 
 
-A.T.O.M (Advanced Task Oriented Model) is a local AI assistant designed to run fully offline on Windows PCs.
+A.T.O.M (Advanced Transformer Orchestration Manager) is a local AI assistant designed to run fully offline on Windows PCs.
 Inspired by futuristic aesthetics, A.T.O.M combines voice recognition, speech synthesis, and intelligent agentic task execution with a visually stunning interface.
 It leverages **two local LLM models** for planning, reasoning, and conversation — with no cloud services required.
 
